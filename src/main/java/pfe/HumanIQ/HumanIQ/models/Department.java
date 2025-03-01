@@ -16,8 +16,8 @@ public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
-
+    @Enumerated(EnumType.STRING)
+    private DepartmentName name;
     @ManyToOne
     @JoinColumn(name = "responsable_id")
     private User responsableDep;
@@ -26,22 +26,25 @@ public class Department {
     private List<User> employees;
 
 
-
     public User getResponsableDep() {
         return responsableDep;
     }
 
     public void setResponsableDep(User responsableDep) {
-        if (responsableDep != null && responsableDep.getDepartment() != null && !responsableDep.getDepartment().equals(this)) {
-            throw new IllegalStateException("Cet utilisateur est déjà responsable d'un autre département.");
+        if (responsableDep != null) {
+            if (responsableDep.getDepartment() != null && !responsableDep.getDepartment().equals(this)) {
+                throw new IllegalStateException("Cet utilisateur est déjà responsable d'un autre département.");
+            }
         }
         this.responsableDep = responsableDep;
     }
     public void addEmployee(User employee) {
         if (employee != null && !employees.contains(employee)) {
             employee.setDepartment(this);
+            employees.add(employee);
         }
     }
+
 
     public void removeEmployee(User employee) {
         if (employee != null && employees.contains(employee)) {
@@ -49,6 +52,15 @@ public class Department {
             employees.remove(employee);
         }
     }
+
+    public DepartmentName getName() {
+        return name;
+    }
+
+    public void setName(DepartmentName name) {
+        this.name = name;
+    }
+
     public List<User> getUsers() {
         return employees;
     }
@@ -63,14 +75,6 @@ public class Department {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
 

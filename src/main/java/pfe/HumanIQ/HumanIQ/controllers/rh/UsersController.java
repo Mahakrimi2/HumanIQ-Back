@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pfe.HumanIQ.HumanIQ.emailConfig.EmailDetails;
@@ -32,7 +33,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/rh")
-@CrossOrigin(origins = "http://localhost:4300")
+@Controller
 public class UsersController {
     private final UserService userService;
     private final TokenValidationService tokenValidationService;
@@ -91,32 +92,61 @@ public class UsersController {
         final String UPLOAD_DIR = "uploads/";
 
         try {
+            // Vérifier si l'utilisateur existe
             User user = userRepo.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+            // Vérifier si le fichier est vide
             if (file.isEmpty()) {
                 return ResponseEntity.badRequest().body("File is empty");
             }
+
+            // Extraire l'extension du fichier
             String originalFilename = file.getOriginalFilename();
-            String fileExtension = originalFilename != null ? originalFilename.substring(originalFilename.lastIndexOf('.')) : "";
+            if (originalFilename == null || !originalFilename.contains(".")) {
+                return ResponseEntity.badRequest().body("Invalid file format");
+            }
+
+            String fileExtension = originalFilename.substring(originalFilename.lastIndexOf('.'));
             String uniqueFileName = Instant.now().toEpochMilli() + "_" + UUID.randomUUID() + fileExtension;
 
+            // Créer le répertoire d'upload s'il n'existe pas
             Path uploadPath = Paths.get(UPLOAD_DIR);
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
 
+            // Définir le chemin complet du fichier
             Path filePath = uploadPath.resolve(uniqueFileName);
+
+            // Vérifier si l'utilisateur a une image existante et la supprimer
+            if (user.getProfileImagePath() != null) {
+                Path oldFilePath = uploadPath.resolve(user.getProfileImagePath());
+                try {
+                    Files.deleteIfExists(oldFilePath);
+                } catch (IOException e) {
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete old profile image");
+                }
+            }
+
+            // Sauvegarder le nouveau fichier
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
+            // Mettre à jour l'utilisateur avec le nouveau chemin d'image
             user.setProfileImagePath(uniqueFileName);
             userRepo.save(user);
 
             return ResponseEntity.ok("Profile image uploaded successfully");
 
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to upload profile image");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unexpected error occurred");
         }
     }
+
 
     @GetMapping("/users/profileImage/{filename}")
     public ResponseEntity<Resource> getImage(@PathVariable String filename) {
@@ -147,7 +177,8 @@ public class UsersController {
     public ResponseEntity<?> register(@RequestBody User user,Long iddep) {
         try {
             System.out.println("Registering new user with username: " + user.getUsername());
-            Department department =departmentService.getDepartmentById(iddep).get();
+            Department department = departmentService.getDepartmentById(iddep)
+                    ;
             user.setDepartment(department);
             User createdUser = userService.createUser(user);
             String token = tokenValidationService.createVerificationToken(user.getUsername());
@@ -195,14 +226,38 @@ public class UsersController {
     @PutMapping("/users/profile")
     public ResponseEntity<User> updateCurrentUserProfile(@RequestBody User updatedUser) {
         User currentUser = getCurrentUser();
-
         currentUser.setFullname(updatedUser.getFullname());
         currentUser.setAddress(updatedUser.getAddress());
+        currentUser.setPosition(updatedUser.getPosition());
+        currentUser.setTelNumber(updatedUser.getTelNumber());
         currentUser.setProfileImagePath(updatedUser.getProfileImagePath());
-        currentUser.setPassword(updatedUser.getPassword()); // Assurez-vous de hacher le mot de passe
-
+        currentUser.setPassword(currentUser.getPassword());
         User savedUser = userRepo.save(currentUser);
         return ResponseEntity.ok(savedUser);
+    }
+    @DeleteMapping("/users/{id}/deleteProfileImage")
+    public ResponseEntity<String> deleteProfileImage(@PathVariable Long id) {
+        final String UPLOAD_DIR = "uploads/";
+
+        try {
+            User user = userRepo.findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+            if (user.getProfileImagePath() == null || user.getProfileImagePath().isEmpty()) {
+                return ResponseEntity.badRequest().body("No profile image found for this user");
+            }
+            Path imagePath = Paths.get(UPLOAD_DIR).resolve(user.getProfileImagePath());
+            Files.deleteIfExists(imagePath);
+            user.setProfileImagePath(null);
+            userRepo.save(user);
+
+            return ResponseEntity.ok("Profile image deleted successfully");
+        } catch (ResourceNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete profile image");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unexpected error occurred");
+        }
     }
 
 

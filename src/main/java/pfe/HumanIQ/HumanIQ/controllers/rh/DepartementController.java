@@ -4,9 +4,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pfe.HumanIQ.HumanIQ.models.Department;
+import pfe.HumanIQ.HumanIQ.models.DepartmentName;
 import pfe.HumanIQ.HumanIQ.models.User;
+import pfe.HumanIQ.HumanIQ.repositories.UserRepo;
 import pfe.HumanIQ.HumanIQ.services.departmentService.DepartmentService;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 @RestController
@@ -14,9 +17,11 @@ import java.util.Optional;
 @CrossOrigin(origins = "http://localhost:4300")
 public class DepartementController {
     private final DepartmentService departmentService;
+    private final UserRepo userRepo;
 
-    public DepartementController(DepartmentService departmentService) {
+    public DepartementController(DepartmentService departmentService, UserRepo userRepo) {
         this.departmentService = departmentService;
+        this.userRepo = userRepo;
     }
 
     @GetMapping("/departments")
@@ -27,7 +32,7 @@ public class DepartementController {
 
     @GetMapping("/department/{id}")
     public ResponseEntity<Department> getDepartmentById(@PathVariable Long id) {
-        Optional<Department> department = departmentService.getDepartmentById(id);
+        Optional<Department> department = Optional.ofNullable(departmentService.getDepartmentById(id));
         return department.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
@@ -49,6 +54,11 @@ public class DepartementController {
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
+    }
+
+    @GetMapping("/department/names")
+    public List<DepartmentName> getDepartmentNames() {
+        return Arrays.asList(DepartmentName.values());
     }
 
     @DeleteMapping("/department/{id}")
@@ -86,4 +96,9 @@ public class DepartementController {
         List<User> availableEmployees = departmentService.getAvailableEmployees();
         return ResponseEntity.ok(availableEmployees);
     }
+    @GetMapping("/department/available-heads")
+    public List<User> getAvailableHeads() {
+        return departmentService.getAvailableHeads();
+    }
+
 }

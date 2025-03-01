@@ -15,6 +15,8 @@ import java.util.Optional;
 @Transactional
 public interface UserRepo extends JpaRepository<User,Long>{
     Optional<User> findByUsername(String username);
+    // Trouver les utilisateurs qui ne sont pas responsables d'un département
     List<User> findByDepartmentIsNull();
     List<User> findByRoles(Role role);
+    List<User> findAll();
 }

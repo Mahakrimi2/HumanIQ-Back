@@ -15,7 +15,7 @@
 //            public void addCorsMappings(CorsRegistry registry) {
 //                registry.addMapping("**") // Autoriser les endpoints sous /api
 //                        .allowedOrigins("http://localhost:4300") // Autoriser Angular
-//                        .allowedMethods("GET", "POST", "PUT", "DELETE") // Méthodes autorisées
+//                        .allowedMethods("GET", "POST", "PUT", "DELETE","OPTIONS") // Méthodes autorisées
 //                        .allowedHeaders("*") ;// Autoriser tous les en-têtes
 //                       // .allowCredentials(true); // Autoriser les cookies
 //            }
