@@ -1,4 +1,4 @@
-package pfe.HumanIQ.HumanIQ.controllers;
+package pfe.HumanIQ.HumanIQ.controllers.authControllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

@@ -1,4 +1,4 @@
-package pfe.HumanIQ.HumanIQ.controllers;
+package pfe.HumanIQ.HumanIQ.controllers.commun;
 
 import org.springframework.web.bind.annotation.*;
 

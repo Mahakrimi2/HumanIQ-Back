@@ -66,4 +66,6 @@ public class ContractController {
         contractService.restoreContrat(id);
         return ResponseEntity.ok().build();
     }
+
+
 }

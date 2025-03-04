@@ -43,57 +43,33 @@ public class DepartmentService {
     }
 
 
-    public Department createDepartment(Department department) {
-        if (department.getResponsableDep() != null) {
-            if (department.getResponsableDep().getId() != null) {
-                User responsable = userRepository.findById(department.getResponsableDep().getId())
-                        .orElseThrow(() -> new RuntimeException("Responsable non trouvé"));
-                department.setResponsableDep(responsable);
-            } else {
-                throw new RuntimeException("L'ID du responsable est null");
-            }
-        }
+    public Department createDepartment(DepartmentName name,Long id) {
+        Department department = new Department();
+        department.setName(name);
+        User responsable = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Responsable non trouvé"));
+        department.setResponsableDep(responsable);
         return departmentRepository.save(department);
     }
 
 
 
 
-    public Department updateDepartment(Long id, Department department) {
-        System.out.println("Data received from frontend: " + department); // Afficher les données reçues
+    public Department updateDepartment(Long id, DepartmentName name,Long iduser) {
+        System.out.println("Data received from frontend: " + name); // Afficher les données reçues
 
         Department existingDepartment = departmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + id));
+        User responsable = userRepository.findById(iduser).get();
+        existingDepartment.setResponsableDep(responsable);
+        existingDepartment.setName(name);
 
-        User oldResponsable = existingDepartment.getResponsableDep();
 
-        // Mettre à jour le nom du département
-        existingDepartment.setName(department.getName());
-
-        // Mettre à jour le responsable uniquement si un nouveau responsable est fourni
-        if (department.getResponsableDep() != null) {
-            if (department.getResponsableDep().getId() != null) {
-                // Trouver le nouveau responsable dans la base de données
-                User newResponsable = userRepository.findById(department.getResponsableDep().getId())
-                        .orElseThrow(() -> new RuntimeException("Responsable non trouvé"));
-                existingDepartment.setResponsableDep(newResponsable);
-            } else {
-                // Si responsableDep.id est null, ignorer l'association ou lever une exception
-                throw new RuntimeException("L'ID du responsable est null");
-            }
-        } else {
-            // Si aucun responsable n'est fourni, conserver l'ancien responsable
-            existingDepartment.setResponsableDep(oldResponsable);
-        }
 
         // Sauvegarder le département mis à jour
         Department updatedDepartment = departmentRepository.save(existingDepartment);
 
-        // Si l'ancien responsable existe et a été remplacé, le rendre disponible
-        if (oldResponsable != null && !oldResponsable.equals(existingDepartment.getResponsableDep())) {
-            oldResponsable.setDepartment(null);
-            userRepository.save(oldResponsable);
-        }
+
 
         return updatedDepartment;
     }

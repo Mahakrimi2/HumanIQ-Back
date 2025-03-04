@@ -1,6 +1,7 @@
 package pfe.HumanIQ.HumanIQ.services.serviceUser;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
+import pfe.HumanIQ.HumanIQ.DTO.request.ChangePasswordRequest;
 import pfe.HumanIQ.HumanIQ.models.User;
 
 import java.util.List;
@@ -16,4 +17,6 @@ public interface UserService extends UserDetailsService {
     User findUserById(Long id);
 
     Optional<User> findByUsername(String username);
+
+    void changePassword(ChangePasswordRequest request);
 }

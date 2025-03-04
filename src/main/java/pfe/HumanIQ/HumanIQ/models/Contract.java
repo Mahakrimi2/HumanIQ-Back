@@ -30,21 +30,7 @@ public class Contract {
     private Integer workingHours;
     private boolean archived = false;
 
-    public boolean isArchived() {
-        return archived;
-    }
 
-    public void setArchived(boolean archived) {
-        this.archived = archived;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
 
     private String benefits;
 
@@ -62,6 +48,23 @@ public class Contract {
     public Long getId() {
         return id;
     }
+
+    public boolean isArchived() {
+        return archived;
+    }
+
+    public void setArchived(boolean archived) {
+        this.archived = archived;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
 
     public void setId(Long id) {
         this.id = id;

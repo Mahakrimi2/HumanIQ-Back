@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import pfe.HumanIQ.HumanIQ.DTO.request.ChangePasswordRequest;
 import pfe.HumanIQ.HumanIQ.emailConfig.EmailDetails;
 import pfe.HumanIQ.HumanIQ.emailConfig.EmailService;
 import pfe.HumanIQ.HumanIQ.models.Department;
@@ -92,16 +93,12 @@ public class UsersController {
         final String UPLOAD_DIR = "uploads/";
 
         try {
-            // Vérifier si l'utilisateur existe
             User user = userRepo.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-            // Vérifier si le fichier est vide
             if (file.isEmpty()) {
                 return ResponseEntity.badRequest().body("File is empty");
             }
 
-            // Extraire l'extension du fichier
             String originalFilename = file.getOriginalFilename();
             if (originalFilename == null || !originalFilename.contains(".")) {
                 return ResponseEntity.badRequest().body("Invalid file format");
@@ -109,17 +106,13 @@ public class UsersController {
 
             String fileExtension = originalFilename.substring(originalFilename.lastIndexOf('.'));
             String uniqueFileName = Instant.now().toEpochMilli() + "_" + UUID.randomUUID() + fileExtension;
-
-            // Créer le répertoire d'upload s'il n'existe pas
             Path uploadPath = Paths.get(UPLOAD_DIR);
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
 
-            // Définir le chemin complet du fichier
             Path filePath = uploadPath.resolve(uniqueFileName);
 
-            // Vérifier si l'utilisateur a une image existante et la supprimer
             if (user.getProfileImagePath() != null) {
                 Path oldFilePath = uploadPath.resolve(user.getProfileImagePath());
                 try {
@@ -129,10 +122,7 @@ public class UsersController {
                 }
             }
 
-            // Sauvegarder le nouveau fichier
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-
-            // Mettre à jour l'utilisateur avec le nouveau chemin d'image
             user.setProfileImagePath(uniqueFileName);
             userRepo.save(user);
 
@@ -174,11 +164,14 @@ public class UsersController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user,Long iddep) {
+    public ResponseEntity<?> register(@RequestBody User user,@RequestParam Long id) {
         try {
             System.out.println("Registering new user with username: " + user.getUsername());
-            Department department = departmentService.getDepartmentById(iddep)
-                    ;
+
+            Department department = departmentService.getDepartmentById(id);
+            if (department == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Department not found");
+            }
             user.setDepartment(department);
             User createdUser = userService.createUser(user);
             String token = tokenValidationService.createVerificationToken(user.getUsername());
@@ -192,12 +185,11 @@ public class UsersController {
                     + loginUrl;
 
             EmailDetails details = new EmailDetails();
-            details.setRecipient(createdUser.getUsername()); // Destinataire
-            details.setSubject(subject); // Sujet de l'email
-            details.setMsgBody(message); // Corps de l'email
+            details.setRecipient(createdUser.getUsername());
+            details.setSubject(subject);
+            details.setMsgBody(message);
 
             emailService.sendSimpleMail(details);
-
 
             return ResponseEntity.status(HttpStatus.CREATED).body("User created. Please check your email to activate your account.");
         } catch (Exception e) {
@@ -205,7 +197,6 @@ public class UsersController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User creation failed: " + e.getMessage());
         }
     }
-
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -223,6 +214,16 @@ public class UsersController {
         return ResponseEntity.ok(currentUser);
     }
 
+    @PostMapping("/users/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
+        try {
+            userService.changePassword(request);
+            return ResponseEntity.ok("Password changed successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     @PutMapping("/users/profile")
     public ResponseEntity<User> updateCurrentUserProfile(@RequestBody User updatedUser) {
         User currentUser = getCurrentUser();
@@ -230,8 +231,8 @@ public class UsersController {
         currentUser.setAddress(updatedUser.getAddress());
         currentUser.setPosition(updatedUser.getPosition());
         currentUser.setTelNumber(updatedUser.getTelNumber());
-        currentUser.setProfileImagePath(updatedUser.getProfileImagePath());
         currentUser.setPassword(currentUser.getPassword());
+        currentUser.setProfileImagePath(updatedUser.getProfileImagePath());
         User savedUser = userRepo.save(currentUser);
         return ResponseEntity.ok(savedUser);
     }

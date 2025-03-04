@@ -1,19 +1,12 @@
-package pfe.HumanIQ.HumanIQ.controllers;
+package pfe.HumanIQ.HumanIQ.controllers.authControllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pfe.HumanIQ.HumanIQ.config.AuthenticationConfig;
 import pfe.HumanIQ.HumanIQ.emailConfig.EmailServiceImpl;
 import pfe.HumanIQ.HumanIQ.emailConfig.PasswordResetTokenService;
-import pfe.HumanIQ.HumanIQ.models.ForgotPwd;
-import pfe.HumanIQ.HumanIQ.models.User;
 import pfe.HumanIQ.HumanIQ.repositories.UserRepo;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/password")

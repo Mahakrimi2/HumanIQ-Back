@@ -1,5 +1,6 @@
 package pfe.HumanIQ.HumanIQ.models;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,6 +21,7 @@ public class Department {
     private DepartmentName name;
     @ManyToOne
     @JoinColumn(name = "responsable_id")
+    @JsonManagedReference
     private User responsableDep;
 
     @OneToMany(mappedBy = "department", cascade = CascadeType.ALL)

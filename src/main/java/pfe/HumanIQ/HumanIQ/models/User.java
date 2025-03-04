@@ -80,7 +80,20 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Payslip> payslips;
 
+//    @OneToMany(mappedBy = "approvedBy", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+//    @JsonIgnore
+//    private List<Holiday> approvedHolidays;
 
+    public List<Holiday> getHolidays() {
+        return holidays;
+    }
+
+    public void setHolidays(List<Holiday> holidays) {
+        this.holidays = holidays;
+    }
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Holiday> holidays;
 
     public Boolean getDisabled() {
         return isDisabled;

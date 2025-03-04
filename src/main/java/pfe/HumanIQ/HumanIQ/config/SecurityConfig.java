@@ -40,14 +40,12 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**","/api/rh/users/profileImage/**").permitAll()
-
                         .requestMatchers("/api/rh/**").hasRole("RH")
+                        .requestMatchers("/api/holiday/**").hasAnyRole("EMPLOYEE","RH")
                         .requestMatchers("/api/pdf/**").hasRole("RH")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/employee/**").hasRole("EMPLOYEE")
-
                         .requestMatchers("/api/test/private").hasRole("ADMIN")
-
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

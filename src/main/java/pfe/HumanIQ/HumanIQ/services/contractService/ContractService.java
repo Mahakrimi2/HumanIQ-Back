@@ -83,7 +83,9 @@ public class ContractService {
         contractRepository.save(contrat);
     }
 
-
+    public List<Contract> getContractsByUsername(String username) {
+        return contractRepository.findByUsername(username);
+    }
 
 }
 

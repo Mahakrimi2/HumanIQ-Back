@@ -36,20 +36,20 @@ public class DepartementController {
         return department.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/department")
-    public ResponseEntity<?> createDepartment(@RequestBody Department department) {
+    @PostMapping("/departments/{id}/{department}")
+    public ResponseEntity<?> createDepartment(@PathVariable DepartmentName department,@PathVariable Long id) {
         try {
-            Department createdDepartment = departmentService.createDepartment(department);
+            Department createdDepartment = departmentService.createDepartment(department,id);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdDepartment);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
-    @PutMapping("/department/{id}")
-    public ResponseEntity<?> updateDepartment(@PathVariable Long id, @RequestBody Department department) {
+    @PutMapping("/departments/{id}")
+    public ResponseEntity<?> updateDepartment(@PathVariable Long id, @RequestParam DepartmentName department,@RequestParam Long iduser) {
         try {
-            Department updatedDepartment = departmentService.updateDepartment(id, department);
+            Department updatedDepartment = departmentService.updateDepartment(id, department,iduser);
             return ResponseEntity.ok(updatedDepartment);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

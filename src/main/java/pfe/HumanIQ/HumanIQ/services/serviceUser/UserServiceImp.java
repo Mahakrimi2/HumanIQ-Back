@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import pfe.HumanIQ.HumanIQ.DTO.request.ChangePasswordRequest;
 import pfe.HumanIQ.HumanIQ.models.Role;
 import pfe.HumanIQ.HumanIQ.models.Token;
 import pfe.HumanIQ.HumanIQ.models.User;
@@ -45,6 +46,8 @@ public class UserServiceImp implements UserService, UserDetailsService {
     }
 
 
+
+
     @Override
     public User createUser(User user) {
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
@@ -59,7 +62,6 @@ public class UserServiceImp implements UserService, UserDetailsService {
         newUser.setPassword(passwordEncoder.encode(user.getPassword()));
         System.out.println(role);
         newUser.setRoles(userRoles);
-
         newUser.setFullname(user.getFullname());
         newUser.setAddress(user.getAddress());
         newUser.setNationalID(user.getNationalID());
@@ -67,6 +69,7 @@ public class UserServiceImp implements UserService, UserDetailsService {
         newUser.setGender(user.getGender());
         newUser.setPosition(user.getPosition());
         newUser.setTelNumber(user.getTelNumber());
+        newUser.setDepartment(user.getDepartment());
         return userRepository.save(newUser);
     }
 
@@ -148,7 +151,30 @@ public class UserServiceImp implements UserService, UserDetailsService {
         tokenRepository.save(verificationToken);
         return verificationToken;
     }
+    private User getCurrentUser() {
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+
+    public void changePassword(ChangePasswordRequest request) {
+        User currentUser = getCurrentUser();
+        if (!passwordEncoder.matches(request.getOldPassword(), currentUser.getPassword())) {
+            throw new IllegalArgumentException("Old password is incorrect");
+        }
+
+        String hashedNewPassword = passwordEncoder.encode(request.getNewPassword());
+
+
+        currentUser.setPassword(hashedNewPassword);
+        userRepository.save(currentUser);
+    }
 
 
 }
+
+
