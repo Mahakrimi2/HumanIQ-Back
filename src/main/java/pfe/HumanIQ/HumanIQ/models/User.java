@@ -1,6 +1,7 @@
 package pfe.HumanIQ.HumanIQ.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -37,6 +38,9 @@ public class User implements UserDetails {
     private LocalDate hireDate;
     private String profileImagePath;
 
+
+
+    private Integer leave_balance=15;
 
 
     /*
@@ -93,6 +97,7 @@ public class User implements UserDetails {
     }
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Holiday> holidays;
 
     public Boolean getDisabled() {
@@ -158,7 +163,13 @@ public class User implements UserDetails {
     public void setLoginDisabled(Boolean isDisabled) {
         this.isDisabled = isDisabled;
     }
+    public Integer getLeave_balance() {
+        return leave_balance;
+    }
 
+    public void setLeave_balance(Integer leave_balance) {
+        this.leave_balance = leave_balance;
+    }
     @Override
     public boolean isAccountNonExpired() {
         return true;

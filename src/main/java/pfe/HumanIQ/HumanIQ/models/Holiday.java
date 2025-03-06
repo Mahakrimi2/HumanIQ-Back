@@ -1,5 +1,7 @@
 package pfe.HumanIQ.HumanIQ.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,8 +23,9 @@ public class Holiday {
     @Enumerated(EnumType.STRING)
     private HolidayType type;
     private String reason;
-    private String status = "PENDING";
-    private String certificate;
+    @Enumerated(EnumType.STRING)
+    private HolidayStatus status ;
+    private String file;
 
     public User getUser() {
         return user;
@@ -34,6 +37,7 @@ public class Holiday {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
     private User user;
 //    @ManyToOne
 //    @JoinColumn(name = "approved_by_user_id")
@@ -80,22 +84,19 @@ public class Holiday {
     }
 
 
-
-    public String getStatus() {
+    public HolidayStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(HolidayStatus status) {
         this.status = status;
     }
 
-    public String getCertificate() {
-        return certificate;
+    public String getFile() {
+        return file;
     }
 
-    public void setCertificate(String certificate) {
-        this.certificate = certificate;
+    public void setFile(String file) {
+        this.file = file;
     }
-
-
 }
