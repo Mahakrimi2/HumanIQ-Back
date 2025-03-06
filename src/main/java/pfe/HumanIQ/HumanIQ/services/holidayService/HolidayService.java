@@ -4,12 +4,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import pfe.HumanIQ.HumanIQ.emailConfig.EmailDetails;
+import pfe.HumanIQ.HumanIQ.emailConfig.EmailService;
 import pfe.HumanIQ.HumanIQ.models.Contract;
 import pfe.HumanIQ.HumanIQ.models.Holiday;
 import pfe.HumanIQ.HumanIQ.models.HolidayStatus;
 import pfe.HumanIQ.HumanIQ.models.User;
 import pfe.HumanIQ.HumanIQ.repositories.HolidayRepository;
 import pfe.HumanIQ.HumanIQ.repositories.UserRepo;
+import pfe.HumanIQ.HumanIQ.services.smsConfig.SmsService;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,6 +26,14 @@ public class HolidayService {
 
     @Autowired
     private HolidayRepository holidayRepository;
+
+    @Autowired
+
+    private EmailService emailService;
+
+    @Autowired
+
+    private SmsService smsService;
 
     @Value("${file.upload-dir}")
     private String uploadDir;
@@ -94,15 +105,44 @@ public class HolidayService {
         Holiday holiday = holidayRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Holiday not found with id: " + id));
 
+        User user = holiday.getUser();
         if (status == HolidayStatus.ACCEPTED) {
-            User user = holiday.getUser();
-            user.setLeave_balance(user.getLeave_balance() - holiday.getDuration());
+         //   user.setLeave_balance(user.getLeave_balance() - holiday.getDuration());
+            userRepo.save(user);
+        } else if (status == HolidayStatus.CANCELLED) {
+          //  user.setLeave_balance(user.getLeave_balance());
             userRepo.save(user);
         }
 
         holiday.setStatus(status);
-        return holidayRepository.save(holiday);
+        Holiday updatedHoliday = holidayRepository.save(holiday);
+
+        String subject = "Your Holiday Request Update";
+        String message = "Dear " + user.getUsername() + ",\n\n"
+                + "Here is the status of your holiday request:\n"
+                + "📅 Created At: " + updatedHoliday.getCreatedAt() + "\n"
+                + "📌 Status: " + updatedHoliday.getStatus() + "\n\n";
+
+        if (status == HolidayStatus.ACCEPTED) {
+            message += "✅ Your holiday request has been *ACCEPTED* for " + updatedHoliday.getDuration() + " days.\n";
+        } else if (status == HolidayStatus.CANCELLED) {
+            message += "❌ Your holiday request has been *CANCELLED* and your leave balance has been restored.\n";
+        }
+
+        EmailDetails details = new EmailDetails();
+        details.setRecipient(user.getUsername());
+        details.setSubject(subject);
+        details.setMsgBody(message);
+        emailService.sendSimpleMail(details);
+
+        String smsMessage = "Hello " + user.getUsername() + ", your holiday request has been " + updatedHoliday.getStatus() + ".";
+
+//        if (user.getTelNumber() != null) {
+//            smsService.sendSms(user.getTelNumber(), smsMessage);
+//        }
+        return updatedHoliday;
     }
+
     public List<Holiday> getHolidaysByEmpUsername(String username) {
         return holidayRepository.findByUsername(username);
     }

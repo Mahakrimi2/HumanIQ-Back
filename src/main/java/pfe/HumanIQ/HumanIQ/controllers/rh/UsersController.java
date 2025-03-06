@@ -176,7 +176,7 @@ public class UsersController {
             User createdUser = userService.createUser(user);
             String token = tokenValidationService.createVerificationToken(user.getUsername());
             String subject = "Your Login Details";
-            String loginUrl = "http://localhost:4300/login"; // URL de la page de login
+            String loginUrl = "http://localhost:4300/login";
             String message = "Welcome to our HumanIQ system!\n\n"
                     + "Here are your login details:\n"
                     + "Email: " + createdUser.getUsername() + "\n"

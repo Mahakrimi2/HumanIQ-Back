@@ -40,7 +40,7 @@ public class User implements UserDetails {
 
 
 
-    private Integer leave_balance=15;
+    private Integer leave_balance=0;
 
 
     /*
