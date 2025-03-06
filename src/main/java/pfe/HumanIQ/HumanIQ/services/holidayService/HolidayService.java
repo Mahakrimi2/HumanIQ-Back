@@ -12,7 +12,6 @@ import pfe.HumanIQ.HumanIQ.models.HolidayStatus;
 import pfe.HumanIQ.HumanIQ.models.User;
 import pfe.HumanIQ.HumanIQ.repositories.HolidayRepository;
 import pfe.HumanIQ.HumanIQ.repositories.UserRepo;
-import pfe.HumanIQ.HumanIQ.services.smsConfig.SmsService;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,9 +30,7 @@ public class HolidayService {
 
     private EmailService emailService;
 
-    @Autowired
 
-    private SmsService smsService;
 
     @Value("${file.upload-dir}")
     private String uploadDir;
