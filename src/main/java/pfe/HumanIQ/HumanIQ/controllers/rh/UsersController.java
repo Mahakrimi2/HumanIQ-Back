@@ -29,6 +29,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -168,12 +169,9 @@ public class UsersController {
         try {
             System.out.println("Registering new user with username: " + user.getUsername());
 
-            Department department = departmentService.getDepartmentById(id);
-            if (department == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Department not found");
-            }
-            user.setDepartment(department);
-            User createdUser = userService.createUser(user);
+
+
+            User createdUser = userService.createEmployee(user,id);
             String token = tokenValidationService.createVerificationToken(user.getUsername());
             String subject = "Your Login Details";
             String loginUrl = "http://localhost:4300/login";

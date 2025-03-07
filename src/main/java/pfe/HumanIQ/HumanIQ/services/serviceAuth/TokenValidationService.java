@@ -54,7 +54,7 @@ public class TokenValidationService {
         token.setUser(user);
         tokenRepo.save(token);
         System.out.println("Token enregistré : " + token.getToken());
-        sendValidationEmail(user, tokenValue);
+        //sendValidationEmail(user, tokenValue);
         return tokenValue;
     }
     @Transactional

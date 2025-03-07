@@ -55,18 +55,18 @@ public class DepartmentService {
 
 
 
-    public Department updateDepartment(Long id, DepartmentName name,Long iduser) {
-        System.out.println("Data received from frontend: " + name); // Afficher les données reçues
+    public Department updateDepartment(Long id, Department  departmentName,Long iduser) {
+        System.out.println("Data received from frontend: " + departmentName.getName()); // Afficher les données reçues
 
         Department existingDepartment = departmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + id));
-        User responsable = userRepository.findById(iduser).get();
-        existingDepartment.setResponsableDep(responsable);
-        existingDepartment.setName(name);
-
-
-
-        // Sauvegarder le département mis à jour
+        User responsableDep = userRepository.findById(iduser).get();
+        if (responsableDep.getDepartments() != null && !responsableDep.getDepartments().isEmpty()
+                && !responsableDep.getDepartments().contains(this)) {
+            throw new IllegalStateException("Cet utilisateur est déjà responsable d'un autre département.");
+        }
+        existingDepartment.setResponsableDep(responsableDep);
+        existingDepartment.setName(departmentName.getName());
         Department updatedDepartment = departmentRepository.save(existingDepartment);
 
 

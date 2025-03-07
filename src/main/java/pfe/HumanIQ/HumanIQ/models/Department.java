@@ -1,5 +1,6 @@
 package pfe.HumanIQ.HumanIQ.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -20,8 +21,6 @@ public class Department {
     @Enumerated(EnumType.STRING)
     private DepartmentName name;
     @ManyToOne
-    @JoinColumn(name = "responsable_id")
-    @JsonManagedReference
     private User responsableDep;
 
     @OneToMany(mappedBy = "department", cascade = CascadeType.ALL)
@@ -34,12 +33,14 @@ public class Department {
 
     public void setResponsableDep(User responsableDep) {
         if (responsableDep != null) {
-            if (responsableDep.getDepartment() != null && !responsableDep.getDepartment().equals(this)) {
+            if (responsableDep.getDepartments() != null && !responsableDep.getDepartments().isEmpty()
+                    && !responsableDep.getDepartments().contains(this)) {
                 throw new IllegalStateException("Cet utilisateur est déjà responsable d'un autre département.");
             }
         }
         this.responsableDep = responsableDep;
     }
+
     public void addEmployee(User employee) {
         if (employee != null && !employees.contains(employee)) {
             employee.setDepartment(this);

@@ -1,6 +1,7 @@
 package pfe.HumanIQ.HumanIQ.services.serviceUser;
 
-import org.springframework.data.rest.webmvc.ResourceNotFoundException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,10 +10,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pfe.HumanIQ.HumanIQ.DTO.request.ChangePasswordRequest;
-import pfe.HumanIQ.HumanIQ.models.Role;
-import pfe.HumanIQ.HumanIQ.models.Token;
-import pfe.HumanIQ.HumanIQ.models.User;
-import pfe.HumanIQ.HumanIQ.models.UserRole;
+import pfe.HumanIQ.HumanIQ.models.*;
+import pfe.HumanIQ.HumanIQ.repositories.DepartmentRepository;
 import pfe.HumanIQ.HumanIQ.repositories.RoleRepository;
 import pfe.HumanIQ.HumanIQ.repositories.TokenRepo;
 import pfe.HumanIQ.HumanIQ.repositories.UserRepo;
@@ -27,12 +26,13 @@ public class UserServiceImp implements UserService, UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final TokenRepo tokenRepository;
     private final RoleRepository roleRepository;
-
-    public UserServiceImp(UserRepo userRepository, PasswordEncoder passwordEncoder, TokenRepo tokenRepository, RoleRepository roleRepository) {
+    private final DepartmentRepository departmentRepository;
+    public UserServiceImp(UserRepo userRepository, PasswordEncoder passwordEncoder, TokenRepo tokenRepository, RoleRepository roleRepository, DepartmentRepository departmentRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenRepository = tokenRepository;
         this.roleRepository = roleRepository;
+        this.departmentRepository = departmentRepository;
     }
 
     @Override
@@ -47,12 +47,16 @@ public class UserServiceImp implements UserService, UserDetailsService {
 
 
 
-
     @Override
-    public User createUser(User user) {
+    public User createEmployee(User user,Long id) {
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
             throw new RuntimeException("username already exists");
         }
+        Department department = departmentRepository.findById(id).orElse(null);
+        if (department == null) {
+            return null;
+        }
+        System.out.println(id);
         Role role = roleRepository.findByName(UserRole.ROLE_EMPLOYEE);
         ////user.setPassword(passwordEncoder.encode(user.getPassword()));
         Set<Role> userRoles = new HashSet<>();
@@ -69,7 +73,32 @@ public class UserServiceImp implements UserService, UserDetailsService {
         newUser.setGender(user.getGender());
         newUser.setPosition(user.getPosition());
         newUser.setTelNumber(user.getTelNumber());
-        newUser.setDepartment(user.getDepartment());
+        newUser.setDepartment(department);
+        return userRepository.save(newUser);
+    }
+    @Override
+    public User createUser(User user) {
+        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
+            throw new RuntimeException("username already exists");
+        }
+
+        Role role = roleRepository.findByName(UserRole.ROLE_EMPLOYEE);
+        ////user.setPassword(passwordEncoder.encode(user.getPassword()));
+        Set<Role> userRoles = new HashSet<>();
+        userRoles.add(role);
+        User newUser = new User();
+        newUser.setUsername(user.getUsername());
+        newUser.setPassword(passwordEncoder.encode(user.getPassword()));
+        System.out.println(role);
+        newUser.setRoles(userRoles);
+        newUser.setFullname(user.getFullname());
+        newUser.setAddress(user.getAddress());
+        newUser.setNationalID(user.getNationalID());
+        newUser.setHireDate(user.getHireDate());
+        newUser.setGender(user.getGender());
+        newUser.setPosition(user.getPosition());
+        newUser.setTelNumber(user.getTelNumber());
+        newUser.setDepartments(user.getDepartments());
         return userRepository.save(newUser);
     }
 

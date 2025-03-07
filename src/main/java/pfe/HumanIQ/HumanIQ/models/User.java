@@ -1,5 +1,6 @@
 package pfe.HumanIQ.HumanIQ.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -75,11 +76,29 @@ public class User implements UserDetails {
     List<Contract> contracts;
 
 
+    @OneToMany(mappedBy = "responsableDep")
+    @JsonIgnore
+    private List<Department> departments;
     @ManyToOne
-    @JoinColumn(name = "department_id")
     @JsonIgnore
     private Department department;
+    public List<Department> getDepartments() {
+        return departments;
+    }
 
+    public User setDepartments(List<Department> department) {
+        this.departments = department;
+        return this;
+    }
+
+    public Department getDepartment() {
+        return department;
+    }
+
+    public User setDepartment(Department department) {
+        this.department = department;
+        return this;
+    }
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Payslip> payslips;
@@ -289,14 +308,7 @@ public class User implements UserDetails {
     public void setFullname(String fullname) {
         this.fullname = fullname;
     }
-    public Department getDepartment() {
-        return department;
-    }
 
-    // Méthode pour définir le département
-    public void setDepartment(Department department) {
-        this.department = department;
-    }
 
     public String getProfileImagePath() {
         return profileImagePath;
@@ -305,6 +317,7 @@ public class User implements UserDetails {
     public void setProfileImagePath(String profileImagePath) {
         this.profileImagePath = profileImagePath;
     }
+
 
 
 }
