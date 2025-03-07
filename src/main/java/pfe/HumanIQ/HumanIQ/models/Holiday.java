@@ -27,7 +27,7 @@ public class Holiday {
     private String reason;
     @Enumerated(EnumType.STRING)
     private HolidayStatus status ;
-    private String file;
+    private String ficher;
 
 
     public LocalDateTime getCreatedAt() {
@@ -52,7 +52,7 @@ public class Holiday {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonBackReference
+
     private User user;
 //    @ManyToOne
 //    @JoinColumn(name = "approved_by_user_id")
@@ -107,11 +107,11 @@ public class Holiday {
         this.status = status;
     }
 
-    public String getFile() {
-        return file;
+    public String getFicher() {
+        return ficher;
     }
 
-    public void setFile(String file) {
-        this.file = file;
+    public void setFicher(String ficher) {
+        this.ficher = ficher;
     }
 }

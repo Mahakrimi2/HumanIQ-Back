@@ -1,11 +1,8 @@
 package pfe.HumanIQ.HumanIQ.controllers.commun;
 
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -74,22 +71,23 @@ public class HolidayController {
     }
 
     @PostMapping
-    public ResponseEntity<Holiday> createHolidayRequest(
+    public ResponseEntity<String> createHolidayRequest(
             @ModelAttribute  Holiday holiday,
-            @RequestParam("file") MultipartFile file,@RequestParam Long email) throws IOException { // Principal permet de récupérer l'utilisateur authentifié
+            @RequestParam("file") MultipartFile file,@RequestParam String email) throws IOException { // Principal permet de récupérer l'utilisateur authentifié
         final String UPLOAD_DIR = "uploads/";
 
         try {
-            User user = userRepo.findById(email)
+            System.out.println(email);
+            User user = userRepo.findByUsername(email)
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-//            if (file.isEmpty()) {
-//                return ResponseEntity.badRequest().body("File is empty");
-//            }
+            if (file.isEmpty()) {
+                return ResponseEntity.badRequest().body("File is empty");
+            }
 
             String originalFilename = file.getOriginalFilename();
-//            if (originalFilename == null || !originalFilename.contains(".")) {
-//                return ResponseEntity.badRequest().body("Invalid file format");
-//            }
+            if (originalFilename == null || !originalFilename.contains(".")) {
+                return ResponseEntity.badRequest().body("Invalid file format");
+            }
 
             String fileExtension = originalFilename.substring(originalFilename.lastIndexOf('.'));
             String uniqueFileName = Instant.now().toEpochMilli() + "_" + UUID.randomUUID() + fileExtension;
@@ -100,23 +98,23 @@ public class HolidayController {
 
             java.nio.file.Path filePath = uploadPath.resolve(uniqueFileName);
 
-            if (user.getProfileImagePath() != null) {
-                Path oldFilePath = uploadPath.resolve(user.getProfileImagePath());
-                try {
-                    Files.deleteIfExists(oldFilePath);
-                } catch (IOException e) {
-                     e.getMessage();
-                }
-            }
+//            if (user.getProfileImagePath() != null) {
+//                Path oldFilePath = uploadPath.resolve(user.getProfileImagePath());
+//                try {
+//                    Files.deleteIfExists(oldFilePath);
+//                } catch (IOException e) {
+//                     e.getMessage();
+//                }
+//            }
 
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
 
             holiday.setUser(user);
             holiday.setStatus(HolidayStatus.PENDING);
-            holiday.setFile(filePath.toString());
+            holiday.setFicher(uniqueFileName);
             Holiday createdHoliday = holidayService.createHolidayRequest(holiday);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdHoliday);
+            return ResponseEntity.status(HttpStatus.CREATED).body("created");
         } catch (ResourceNotFoundException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {

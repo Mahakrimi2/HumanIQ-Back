@@ -64,9 +64,9 @@ public class HolidayService {
 
     public void deleteHoliday(Long id) {
         holidayRepository.findById(id).ifPresent(holiday -> {
-            if (holiday.getFile() != null) {
+            if (holiday.getFicher() != null) {
                 try {
-                    Path filePath = Paths.get(uploadDir, holiday.getFile());
+                    Path filePath = Paths.get(uploadDir, holiday.getFicher());
                     Files.deleteIfExists(filePath);
                 } catch (IOException e) {
                     throw new RuntimeException("Failed to delete certificate file", e);
@@ -104,10 +104,11 @@ public class HolidayService {
 
         User user = holiday.getUser();
         if (status == HolidayStatus.ACCEPTED) {
-         //   user.setLeave_balance(user.getLeave_balance() - holiday.getDuration());
+            int number=user.getLeave_balance() - holiday.getDuration();
+           user.setLeave_balance(number);
             userRepo.save(user);
         } else if (status == HolidayStatus.CANCELLED) {
-          //  user.setLeave_balance(user.getLeave_balance());
+            user.setLeave_balance(user.getLeave_balance());
             userRepo.save(user);
         }
 

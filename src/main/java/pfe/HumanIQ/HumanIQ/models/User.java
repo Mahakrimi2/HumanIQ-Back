@@ -40,7 +40,7 @@ public class User implements UserDetails {
 
 
 
-    private Integer leave_balance=0;
+    private Integer leave_balance=15;
 
 
     /*
@@ -162,6 +162,12 @@ public class User implements UserDetails {
 
     public void setLoginDisabled(Boolean isDisabled) {
         this.isDisabled = isDisabled;
+    }
+    @PrePersist
+    public void prePersist() {
+        if (leave_balance == null) {
+            leave_balance = 15;
+        }
     }
     public Integer getLeave_balance() {
         return leave_balance;
