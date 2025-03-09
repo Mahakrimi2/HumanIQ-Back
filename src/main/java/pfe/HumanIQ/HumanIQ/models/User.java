@@ -82,6 +82,10 @@ public class User implements UserDetails {
     @ManyToOne
     @JsonIgnore
     private Department department;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Pointage> pointages;
+
     public List<Department> getDepartments() {
         return departments;
     }
