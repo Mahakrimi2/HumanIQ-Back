@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/pointages")
-@CrossOrigin(origins = "http://localhost:4300")
+@CrossOrigin(origins = "http://localhost:4400")
 public class PointageController {
 
     @Autowired
@@ -51,6 +51,11 @@ public class PointageController {
     @GetMapping("/{username}")
     public ResponseEntity<List<Pointage>> getPointagesByUser(@PathVariable String username) {
         List<Pointage> pointages = pointageService.getPointagesByUser(username);
+        return ResponseEntity.ok(pointages);
+    }
+    @GetMapping("/all")
+    public ResponseEntity<List<Pointage>> getAllPointages() {
+        List<Pointage> pointages = pointageRepo.findAll(); // Récupérer tous les pointages
         return ResponseEntity.ok(pointages);
     }
 

@@ -8,7 +8,7 @@ import pfe.HumanIQ.HumanIQ.services.contractService.ContractService;
 import java.util.List;
 @RestController
 @RequestMapping("/api/rh")
-@CrossOrigin(origins = "http://localhost:4300")
+@CrossOrigin(origins = "http://localhost:4400")
 public class ContractController {
     private final ContractService contractService;
 

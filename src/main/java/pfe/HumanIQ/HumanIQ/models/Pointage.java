@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
@@ -21,6 +22,11 @@ public class Pointage {
     private LocalDateTime pauseStartTime;
     private LocalDateTime pauseEndTime;
 
+
+    @Enumerated(EnumType.STRING)
+    private PointageStatus status;
+
+    private LocalDate date = LocalDate.now();
     private Duration workingTime;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -44,10 +50,25 @@ public class Pointage {
     public LocalDateTime getPauseEndTime() {
         return pauseEndTime;
     }
+    public PointageStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(PointageStatus status) {
+        this.status = status;
+    }
 
     public void setPauseEndTime(LocalDateTime pauseEndTime) {
         this.pauseEndTime = pauseEndTime;
     }
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
 
     public LocalDateTime getPauseStartTime() {
         return pauseStartTime;

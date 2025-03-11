@@ -25,8 +25,6 @@ public class PointageService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
         pointage.setUser(user);
-
-        // Calculate working time in ISO-8601 format
         String workingTimeString = calculateWorkingTime(pointage);
         Duration workingTime = Duration.parse(workingTimeString);
         pointage.setWorkingTime(workingTime);

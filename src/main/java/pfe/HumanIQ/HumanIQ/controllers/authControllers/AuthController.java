@@ -25,7 +25,7 @@ import java.util.Collections;
 @RestController
 @RequestMapping("/api/auth")
 @Validated
-@CrossOrigin(origins = "http://localhost:4300")
+@CrossOrigin(origins = "http://localhost:4400")
 public class AuthController {
 
     private final UserService userService;

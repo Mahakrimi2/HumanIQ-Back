@@ -73,7 +73,7 @@ public class HolidayController {
     @PostMapping
     public ResponseEntity<String> createHolidayRequest(
             @ModelAttribute  Holiday holiday,
-            @RequestParam("file") MultipartFile file,@RequestParam String email) throws IOException { // Principal permet de récupérer l'utilisateur authentifié
+            @RequestParam(value = "file",required = false) MultipartFile file,@RequestParam String email) throws IOException { // Principal permet de récupérer l'utilisateur authentifié
         final String UPLOAD_DIR = "uploads/";
 
         try {
