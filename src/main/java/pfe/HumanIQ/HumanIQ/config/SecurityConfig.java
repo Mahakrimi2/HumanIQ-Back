@@ -46,7 +46,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/employee/**").hasRole("EMPLOYEE")
                         .requestMatchers("/api/test/private").hasRole("ADMIN")
-                        .requestMatchers("/api/pointages/**").hasAnyRole("EMPLOYEE","RH")
+                        .requestMatchers("/api/pointages/**","/api/users/**").hasAnyRole("EMPLOYEE","RH")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

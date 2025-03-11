@@ -30,22 +30,26 @@ public class PointageController {
         User user = userRepo.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
         pointage.setUser(user);
-        String workingTimeString = calculateWorkingTime(pointage);
-        Duration workingTime = Duration.parse(workingTimeString);
-        pointage.setWorkingTime(workingTime);
+        Duration workingTime = calculateWorkingTime(pointage);;
+        if (workingTime != null) {
+            pointage.setWorkingTime(workingTime);
+        }
         return pointageRepo.save(pointage);
     }
 
-    private String calculateWorkingTime(Pointage pointage) {
-        if (pointage.getArrivalTime() == null || pointage.getDepartureTime() == null) {
-            throw new RuntimeException("Arrival time and departure time are required");
-        }
-        Duration totalTime = Duration.between(pointage.getArrivalTime(), pointage.getDepartureTime());
-        if (pointage.getPauseStartTime() != null && pointage.getPauseEndTime() != null) {
-            Duration pauseDuration = Duration.between(pointage.getPauseStartTime(), pointage.getPauseEndTime());
-            totalTime = totalTime.minus(pauseDuration);
-        }
-        return totalTime.toString();
+    private Duration calculateWorkingTime(Pointage pointage) {
+       if (pointage.getDepartureTime()!=null){
+           Duration totalTime = Duration.between(pointage.getArrivalTime(), pointage.getDepartureTime());
+           if (pointage.getPauseStartTime() != null && pointage.getPauseEndTime() != null) {
+               Duration pauseDuration = Duration.between(pointage.getPauseStartTime(), pointage.getPauseEndTime());
+               totalTime = totalTime.minus(pauseDuration);
+           }
+
+           return totalTime;
+       }
+       return null;
+
+
     }
 
     @GetMapping("/{username}")
@@ -53,7 +57,16 @@ public class PointageController {
         List<Pointage> pointages = pointageService.getPointagesByUser(username);
         return ResponseEntity.ok(pointages);
     }
-
+    @GetMapping("/all")
+    public ResponseEntity<List<Pointage>> getPointages() {
+        List<Pointage> pointages = pointageService.getall();
+        return ResponseEntity.ok(pointages);
+    }
+    @GetMapping("/byid/{id}")
+    public Pointage getPointagesByid(@PathVariable Long id) {
+        Pointage pointages = pointageService.getbyid(id);
+        return pointages;
+    }
     @PutMapping("/update/{id}")
     public ResponseEntity<Pointage> updatePointage(@PathVariable Long id, @RequestBody Pointage pointageDetails) {
         Pointage pointage = pointageRepo.findById(id)
@@ -62,9 +75,10 @@ public class PointageController {
         pointage.setPauseStartTime(pointageDetails.getPauseStartTime());
         pointage.setPauseEndTime(pointageDetails.getPauseEndTime());
         pointage.setDepartureTime(pointageDetails.getDepartureTime());
-        String workingTimeString = calculateWorkingTime(pointage);
-        Duration workingTime = Duration.parse(workingTimeString);
-        pointage.setWorkingTime(workingTime);
+        Duration workingTime = calculateWorkingTime(pointage);
+        if (workingTime != null) {
+            pointage.setWorkingTime(workingTime);
+        }
         Pointage updatedPointage = pointageRepo.save(pointage);
         return ResponseEntity.ok(updatedPointage);
     }

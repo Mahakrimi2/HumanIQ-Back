@@ -1,4 +1,4 @@
-package pfe.HumanIQ.HumanIQ.controllers.rh;
+package pfe.HumanIQ.HumanIQ.controllers.commun;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -16,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 import pfe.HumanIQ.HumanIQ.DTO.request.ChangePasswordRequest;
 import pfe.HumanIQ.HumanIQ.emailConfig.EmailDetails;
 import pfe.HumanIQ.HumanIQ.emailConfig.EmailService;
-import pfe.HumanIQ.HumanIQ.models.Department;
 import pfe.HumanIQ.HumanIQ.models.User;
 import pfe.HumanIQ.HumanIQ.repositories.UserRepo;
 import pfe.HumanIQ.HumanIQ.services.departmentService.DepartmentService;
@@ -29,14 +28,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/rh")
+@RequestMapping("/api/users")
 @Controller
-public class UsersController {
+public class UserController {
     private final UserService userService;
     private final TokenValidationService tokenValidationService;
     private final DepartmentService departmentService;
@@ -44,7 +42,7 @@ public class UsersController {
     private final UserRepo userRepo;
 
     @Autowired
-    public UsersController(UserService userService, TokenValidationService tokenValidationService, DepartmentService departmentService, EmailService emailService, UserRepo userRepo) {
+    public UserController(UserService userService, TokenValidationService tokenValidationService, DepartmentService departmentService, EmailService emailService, UserRepo userRepo) {
         this.userService = userService;
         this.tokenValidationService = tokenValidationService;
         this.departmentService = departmentService;
@@ -206,7 +204,7 @@ public class UsersController {
         }
         throw new ResourceNotFoundException("No authenticated user found");
     }
-    @GetMapping("/users/profile")
+    @GetMapping("/profile")
     public ResponseEntity<User> getCurrentUserProfile() {
         User currentUser = getCurrentUser();
         return ResponseEntity.ok(currentUser);
