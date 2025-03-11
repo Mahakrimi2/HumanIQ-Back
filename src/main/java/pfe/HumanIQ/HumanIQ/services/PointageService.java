@@ -37,6 +37,15 @@ public class PointageService {
                 .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
         return pointageRepository.findByUsername(username);
     }
+    public List<Pointage> getall() {
+
+        return pointageRepository.findAll();
+    }
+
+    public Pointage getbyid(Long id) {
+
+        return pointageRepository.findById(id).get();
+    }
 
     private String calculateWorkingTime(Pointage pointage) {
         if (pointage.getArrivalTime() == null || pointage.getDepartureTime() == null) {
