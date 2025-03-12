@@ -42,7 +42,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**","/api/rh/users/profileImage/**").permitAll()
                         .requestMatchers("/api/rh/**").hasRole("RH")
                         .requestMatchers("/api/holiday/**").hasAnyRole("EMPLOYEE","RH")
-                        .requestMatchers("/api/pdf/**").hasRole("RH")
+                        .requestMatchers("/api/pdf/**").hasAnyRole("EMPLOYEE","RH")
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/employee/**").hasRole("EMPLOYEE")
                         .requestMatchers("/api/test/private").hasRole("ADMIN")
@@ -57,7 +57,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:4400")); // Remplacez par vos domaines autorisés
+        configuration.setAllowedOrigins(List.of("http://localhost:4200")); // Remplacez par vos domaines autorisés
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true); // Permet d'envoyer des cookies avec CORS si nécessaire

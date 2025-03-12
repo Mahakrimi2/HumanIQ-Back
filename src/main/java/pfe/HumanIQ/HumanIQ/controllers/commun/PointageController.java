@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/pointages")
-@CrossOrigin(origins = "http://localhost:4400")
+//@CrossOrigin(origins = "http://localhost:4400")
 public class PointageController {
 
     @Autowired
@@ -58,13 +58,13 @@ public class PointageController {
         return ResponseEntity.ok(pointages);
     }
     @GetMapping("/all")
-<<<<<<< HEAD
+
     public ResponseEntity<List<Pointage>> getAllPointages() {
         List<Pointage> pointages = pointageRepo.findAll(); // Récupérer tous les pointages
         return ResponseEntity.ok(pointages);
     }
 
-=======
+
     public ResponseEntity<List<Pointage>> getPointages() {
         List<Pointage> pointages = pointageService.getall();
         return ResponseEntity.ok(pointages);
@@ -74,7 +74,7 @@ public class PointageController {
         Pointage pointages = pointageService.getbyid(id);
         return pointages;
     }
->>>>>>> 25066bf9b02e31abb03818c9d9e06f5b09fc22e7
+
     @PutMapping("/update/{id}")
     public ResponseEntity<Pointage> updatePointage(@PathVariable Long id, @RequestBody Pointage pointageDetails) {
         Pointage pointage = pointageRepo.findById(id)

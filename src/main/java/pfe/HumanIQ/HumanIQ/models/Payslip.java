@@ -21,7 +21,11 @@ public class Payslip {
 
     private Float baseSalary;
 
+    private Float hoursWorked;
+
     private Float bonuses;
+
+    private Float overtimeHours;
 
     private Float deductions;
 
@@ -29,9 +33,11 @@ public class Payslip {
 
     private Float overtimePay;
 
-    private Date paymentDate;
-
     private String status;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     public Long getId() {
         return id;
@@ -57,12 +63,28 @@ public class Payslip {
         this.baseSalary = baseSalary;
     }
 
+    public Float getHoursWorked() {
+        return hoursWorked;
+    }
+
+    public void setHoursWorked(Float hoursWorked) {
+        this.hoursWorked = hoursWorked;
+    }
+
     public Float getBonuses() {
         return bonuses;
     }
 
     public void setBonuses(Float bonuses) {
         this.bonuses = bonuses;
+    }
+
+    public Float getOvertimeHours() {
+        return overtimeHours;
+    }
+
+    public void setOvertimeHours(Float overtimeHours) {
+        this.overtimeHours = overtimeHours;
     }
 
     public Float getDeductions() {
@@ -89,13 +111,6 @@ public class Payslip {
         this.overtimePay = overtimePay;
     }
 
-    public Date getPaymentDate() {
-        return paymentDate;
-    }
-
-    public void setPaymentDate(Date paymentDate) {
-        this.paymentDate = paymentDate;
-    }
 
     public String getStatus() {
         return status;
@@ -113,7 +128,17 @@ public class Payslip {
         this.user = user;
     }
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+
+    public void calculateSalary() {
+
+        float hourlyRate = this.baseSalary / 198f;
+
+
+        this.overtimePay = this.overtimeHours * hourlyRate;
+
+
+        this.netSalary = this.baseSalary + this.overtimePay + this.bonuses - this.deductions;
+    }
+
+
 }

@@ -12,7 +12,7 @@ import pfe.HumanIQ.HumanIQ.services.pdfGeneration.PDFGeneratorService;
 
 @RestController
 @RequestMapping("/api/pdf")
-@CrossOrigin(origins = "http://localhost:4400")
+//@CrossOrigin(origins = "http://localhost:4400")
 public class PDFExportController {
     @Autowired
     private PDFGeneratorService pdfGeneratorService;

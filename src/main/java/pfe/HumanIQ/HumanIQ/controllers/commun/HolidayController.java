@@ -80,34 +80,24 @@ public class HolidayController {
             System.out.println(email);
             User user = userRepo.findByUsername(email)
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-            if (file.isEmpty()) {
-                return ResponseEntity.badRequest().body("File is empty");
+            String uniqueFileName = null;
+
+            if (file != null && !file.isEmpty()) {
+                String originalFilename = file.getOriginalFilename();
+                if (!originalFilename.contains(".")) {
+                    return ResponseEntity.badRequest().body("Invalid file format");
+                }
+
+                String fileExtension = originalFilename.substring(originalFilename.lastIndexOf('.'));
+                uniqueFileName = Instant.now().toEpochMilli() + "_" + UUID.randomUUID() + fileExtension;
+                java.nio.file.Path uploadPath = Paths.get(UPLOAD_DIR);
+                if (!Files.exists(uploadPath)) {
+                    Files.createDirectories(uploadPath);
+                }
+
+                java.nio.file.Path filePath = uploadPath.resolve(uniqueFileName);
+                Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
             }
-
-            String originalFilename = file.getOriginalFilename();
-            if (originalFilename == null || !originalFilename.contains(".")) {
-                return ResponseEntity.badRequest().body("Invalid file format");
-            }
-
-            String fileExtension = originalFilename.substring(originalFilename.lastIndexOf('.'));
-            String uniqueFileName = Instant.now().toEpochMilli() + "_" + UUID.randomUUID() + fileExtension;
-            java.nio.file.Path uploadPath = Paths.get(UPLOAD_DIR);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-
-            java.nio.file.Path filePath = uploadPath.resolve(uniqueFileName);
-
-//            if (user.getProfileImagePath() != null) {
-//                Path oldFilePath = uploadPath.resolve(user.getProfileImagePath());
-//                try {
-//                    Files.deleteIfExists(oldFilePath);
-//                } catch (IOException e) {
-//                     e.getMessage();
-//                }
-//            }
-
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
 
             holiday.setUser(user);
