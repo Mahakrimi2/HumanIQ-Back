@@ -4,13 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pfe.HumanIQ.HumanIQ.models.Pointage;
-import pfe.HumanIQ.HumanIQ.models.User;
 import pfe.HumanIQ.HumanIQ.repositories.PointageRepo;
 import pfe.HumanIQ.HumanIQ.repositories.UserRepo;
 import pfe.HumanIQ.HumanIQ.services.PointageService;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -27,14 +25,8 @@ public class PointageController {
 
     @PostMapping("/create/{username}")
     public Pointage createPointage(@PathVariable String username, @RequestBody Pointage pointage) {
-        User user = userRepo.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("User not found with username: " + username));
-        pointage.setUser(user);
-        Duration workingTime = calculateWorkingTime(pointage);;
-        if (workingTime != null) {
-            pointage.setWorkingTime(workingTime);
-        }
-        return pointageRepo.save(pointage);
+
+        return pointageService.createPointage(username,pointage);
     }
 
     private Duration calculateWorkingTime(Pointage pointage) {
@@ -83,10 +75,7 @@ public class PointageController {
         pointage.setPauseStartTime(pointageDetails.getPauseStartTime());
         pointage.setPauseEndTime(pointageDetails.getPauseEndTime());
         pointage.setDepartureTime(pointageDetails.getDepartureTime());
-        Duration workingTime = calculateWorkingTime(pointage);
-        if (workingTime != null) {
-            pointage.setWorkingTime(workingTime);
-        }
+
         Pointage updatedPointage = pointageRepo.save(pointage);
         return ResponseEntity.ok(updatedPointage);
     }

@@ -1,7 +1,9 @@
 package pfe.HumanIQ.HumanIQ.emailConfig;
 
+import jakarta.activation.DataSource;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.util.ByteArrayDataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -70,8 +72,25 @@ public class EmailServiceImpl implements EmailService {
         }
     }
 
+@Override
+    public void sendfichedepaie(String recipient, String title,byte[] body) {
+    MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 
+    try {
+        MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
+        mimeMessageHelper.setFrom(sender);
+        mimeMessageHelper.setTo(recipient);
+        mimeMessageHelper.setSubject(title);
+        mimeMessageHelper.setText("Bonjour,\n\nVeuillez trouver ci-joint votre fiche de paie pour ce mois.\n\nCordialement.");
 
+        // tbadelik mel byte lil pdf
+        DataSource dataSource = new ByteArrayDataSource(body, "application/pdf");
+        mimeMessageHelper.addAttachment("Fiche_de_paie.pdf", dataSource);
+        javaMailSender.send(mimeMessage);
+    } catch (MessagingException e) {
+        System.out.println(e.getMessage());
+    }
+}
     public void sendPasswordResetEmail(String recipient, String token) {
         String resetLink = "http://localhost:4200/reset-password?token=" + token;
         String message = "Cliquez sur le lien suivant pour réinitialiser votre mot de passe : <a href='" + resetLink + "'>Réinitialiser mon mot de passe</a>";

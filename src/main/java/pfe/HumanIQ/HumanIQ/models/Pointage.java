@@ -27,7 +27,7 @@ public class Pointage {
     private PointageStatus status;
 
     private LocalDate date = LocalDate.now();
-    private Duration workingTime;
+    private Double workingTime;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -39,11 +39,11 @@ public class Pointage {
         this.user = user;
     }
 
-    public Duration getWorkingTime() {
+    public Double getWorkingTime() {
         return workingTime;
     }
 
-    public void setWorkingTime(Duration workingTime) {
+    public void setWorkingTime(Double workingTime) {
         this.workingTime = workingTime;
     }
 
