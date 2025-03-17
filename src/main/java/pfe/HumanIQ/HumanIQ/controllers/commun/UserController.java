@@ -73,6 +73,13 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
+
+//    @PutMapping("/activate/{id}")
+//    public ResponseEntity<Void> activateUser(@PathVariable Long id) {
+//        userService.activateUser(id);
+//        return ResponseEntity.ok().build();
+//    }
+
     @DeleteMapping("/user/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
@@ -90,28 +97,23 @@ public class UserController {
     @PostMapping("/users/{id}/uploadProfileImage")
     public ResponseEntity<String> uploadProfileImage(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
         final String UPLOAD_DIR = "uploads/";
-
         try {
             User user = userRepo.findById(id)
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
             if (file.isEmpty()) {
                 return ResponseEntity.badRequest().body("File is empty");
             }
-
             String originalFilename = file.getOriginalFilename();
             if (originalFilename == null || !originalFilename.contains(".")) {
                 return ResponseEntity.badRequest().body("Invalid file format");
             }
-
             String fileExtension = originalFilename.substring(originalFilename.lastIndexOf('.'));
             String uniqueFileName = Instant.now().toEpochMilli() + "_" + UUID.randomUUID() + fileExtension;
             Path uploadPath = Paths.get(UPLOAD_DIR);
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
-
             Path filePath = uploadPath.resolve(uniqueFileName);
-
             if (user.getProfileImagePath() != null) {
                 Path oldFilePath = uploadPath.resolve(user.getProfileImagePath());
                 try {
@@ -120,7 +122,6 @@ public class UserController {
                     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete old profile image");
                 }
             }
-
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
             user.setProfileImagePath(uniqueFileName);
             userRepo.save(user);
@@ -177,6 +178,8 @@ public class UserController {
                     + "Here are your login details:\n"
                     + "Email: " + createdUser.getUsername() + "\n"
                     + "Password: " + user.getPassword() + "\n\n"
+                    + "For security reasons, we recommend changing your password on your first login.\n"
+                    + "You can change your password after logging in by navigating to the 'Profile' section.\n\n"
                     + "Click the link below to log in:\n"
                     + loginUrl;
 

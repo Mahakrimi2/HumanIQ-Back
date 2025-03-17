@@ -76,11 +76,12 @@ public class AuthController {
             });
         
         System.out.println("Found user in database: " + user.getUsername());
-        /*
-        if (!user.getAccountVerified()) {
-            System.err.println("Account not verified for user: " + authRequest.getUsername());
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new LoginDTO("Account not verified. Please verify your account before logging in."));
-        }*/
+        if (user.getDisabled().equals(true)) {
+            System.err.println("Account is desactivated for user: " + authRequest.getUsername());
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new LoginDTO("Account is deactivated. Please contact the administrator."));
+        }
+
+
         Authentication authenticate = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
         );

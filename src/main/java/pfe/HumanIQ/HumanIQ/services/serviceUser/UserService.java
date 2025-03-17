@@ -10,7 +10,10 @@ import java.util.Optional;
 public interface UserService extends UserDetailsService {
     List<User> getAllUsers();
     User createUser(User user);
-    public User createEmployee(User user,Long id) ;
+
+
+
+    public User createEmployee(User user, Long id) ;
 
         public User updateUser(User user,Long id);
     void deleteUser(Long id);

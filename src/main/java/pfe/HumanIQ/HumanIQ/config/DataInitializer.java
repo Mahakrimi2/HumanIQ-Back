@@ -20,5 +20,7 @@ public class DataInitializer implements CommandLineRunner {
         userService.createRoleIfNotExist(UserRole.ROLE_RH);
         userService.createRoleIfNotExist(UserRole.ROLE_ADMIN);
         userService.createRoleIfNotExist(UserRole.ROLE_EMPLOYEE);
+        userService.createRoleIfNotExist(UserRole.ROLE_MANAGER);
+        userService.createRoleIfNotExist(UserRole.ROLE_PM);
     }
 }

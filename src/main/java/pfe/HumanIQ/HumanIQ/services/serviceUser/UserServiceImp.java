@@ -1,7 +1,5 @@
 package pfe.HumanIQ.HumanIQ.services.serviceUser;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -45,6 +43,9 @@ public class UserServiceImp implements UserService, UserDetailsService {
         return userRepository.findByRoles(role);
     }
 
+
+
+  
 
 
     @Override
@@ -105,7 +106,6 @@ public class UserServiceImp implements UserService, UserDetailsService {
 
 
 
-
     @Override
     public User updateUser(User user,Long id) {
         User existingUser = findUserById(id);
@@ -133,20 +133,43 @@ public class UserServiceImp implements UserService, UserDetailsService {
     }
 
     public Role createRoleIfNotExist(UserRole roleName) {
-        Role existingRoles = roleRepository.findByName(roleName);
-       if (existingRoles != null) {
-           return null;
-       }
-        Role role = new Role(roleName);
-        return roleRepository.save(role);
+        Role existingRole = roleRepository.findByName(roleName);
+        if (existingRole == null) {
+            Role newRole = new Role();
+            newRole.setName(roleName);
+            return roleRepository.save(newRole);
+        }
+        return existingRole;
     }
 
 
     @Override
     public void deleteUser(Long id) {
+       User user = userRepository.findById(id).orElse(null);
+       if (user == null) {
+           throw new RuntimeException("user does not exist");
+       }
+       user.setDisabled(true);
+        userRepository.save(user);
 
-        userRepository.deleteById(id);
     }
+
+//    @Override
+//    public void deleteUser(Long id) {
+//        User user = userRepository.findById(id)
+//                .orElseThrow(() -> new RuntimeException("User not found"));
+//        user.setActive(false);
+//        userRepository.save(user);
+//    }
+
+
+//    public void activateUser(Long id) {
+//        User user = userRepository.findById(id)
+//                .orElseThrow(() -> new RuntimeException("User not found"));
+//        user.setActive(true);
+//        userRepository.save(user);
+//    }
+
 
     @Override
     public User findUserById(Long id) {
@@ -201,6 +224,15 @@ public class UserServiceImp implements UserService, UserDetailsService {
 
         currentUser.setPassword(hashedNewPassword);
         userRepository.save(currentUser);
+    }
+
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    public List<User> getUsersByIds(List<Long> ids) {
+        return userRepository.findAllById(ids);
     }
 
 

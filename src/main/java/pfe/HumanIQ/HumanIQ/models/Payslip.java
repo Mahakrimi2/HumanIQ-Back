@@ -29,11 +29,11 @@ public class Payslip {
 
     private Float deductions;
 
-    private Float netSalary;
+    private Double netSalary;
 
     private Float overtimePay;
 
-    private String status;
+    private Boolean status;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -95,11 +95,11 @@ public class Payslip {
         this.deductions = deductions;
     }
 
-    public Float getNetSalary() {
+    public Double getNetSalary() {
         return netSalary;
     }
 
-    public void setNetSalary(Float netSalary) {
+    public void setNetSalary(Double netSalary) {
         this.netSalary = netSalary;
     }
 
@@ -112,11 +112,11 @@ public class Payslip {
     }
 
 
-    public String getStatus() {
+    public Boolean getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Boolean status) {
         this.status = status;
     }
 
@@ -129,16 +129,6 @@ public class Payslip {
     }
 
 
-    public void calculateSalary() {
-
-        float hourlyRate = this.baseSalary / 198f;
-
-
-        this.overtimePay = this.overtimeHours * hourlyRate;
-
-
-        this.netSalary = this.baseSalary + this.overtimePay + this.bonuses - this.deductions;
-    }
 
 
 }

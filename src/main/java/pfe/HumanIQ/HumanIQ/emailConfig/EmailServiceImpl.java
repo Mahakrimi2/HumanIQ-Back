@@ -11,7 +11,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.util.UriComponentsBuilder;
-import pfe.HumanIQ.HumanIQ.models.User;
 
 import static javax.swing.UIManager.put;
 
@@ -73,7 +72,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
 @Override
-    public void sendfichedepaie(String recipient, String title,byte[] body) {
+    public boolean sendfichedepaie(String recipient, String title, byte[] body) {
     MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 
     try {
@@ -90,6 +89,7 @@ public class EmailServiceImpl implements EmailService {
     } catch (MessagingException e) {
         System.out.println(e.getMessage());
     }
+    return false;
 }
     public void sendPasswordResetEmail(String recipient, String token) {
         String resetLink = "http://localhost:4200/reset-password?token=" + token;

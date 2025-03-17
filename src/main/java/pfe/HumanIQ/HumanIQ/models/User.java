@@ -29,7 +29,8 @@ public class User implements UserDetails {
     private String gender;
     private String fullname;
     private String address;
-    private String nationalID;
+    private String nationalID
+            ;
     private String position;
     private Double salary;
     private LocalDate dateOfBirth;
@@ -39,7 +40,7 @@ public class User implements UserDetails {
     private LocalDate hireDate;
     private String profileImagePath;
 
-
+    private boolean active = true;
 
     private Integer leave_balance=15;
 
@@ -107,6 +108,8 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Payslip> payslips;
 
+    @ManyToMany(mappedBy = "employees")
+    private List<Project> projects;
 //    @OneToMany(mappedBy = "approvedBy", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 //    @JsonIgnore
 //    private List<Holiday> approvedHolidays;
@@ -182,7 +185,13 @@ public class User implements UserDetails {
     public Boolean getLoginDisabled() {
         return isDisabled;
     }
+    public boolean isActive() {
+        return active;
+    }
 
+    public void setActive(boolean active) {
+        this.active = active;
+    }
     public void setLoginDisabled(Boolean isDisabled) {
         this.isDisabled = isDisabled;
     }

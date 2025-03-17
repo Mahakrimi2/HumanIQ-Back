@@ -58,6 +58,7 @@ public class DepartementController {
 
     @GetMapping("/department/names")
     public List<DepartmentName> getDepartmentNames() {
+
         return Arrays.asList(DepartmentName.values());
     }
 

@@ -21,7 +21,7 @@ public interface HolidayRepository extends JpaRepository<Holiday, Long> {
 
     @Query("SELECT COUNT(h) FROM Holiday h WHERE h.user.id = :userId AND h.status = 'ACCEPTED'  AND MONTH(h.startDate) = :month AND YEAR(h.startDate) = :year")
     int getAcceptedHolidaysForUserAndMonth(@Param("userId") Long userId, @Param("month") int month, @Param("year") int year);
-    @Query("SELECT COUNT(h) FROM Holiday h WHERE h.user.id = :userId AND h.status = 'ACCEPTED' AND h.type = 'ANNUAL' AND FUNCTION('MONTH', h.startDate) = :month AND FUNCTION('YEAR', h.startDate) = :year")
+    @Query("SELECT h.duration FROM Holiday h WHERE h.user.id = :userId AND h.status = 'ACCEPTED' AND h.type = 'ANNUAL' AND FUNCTION('MONTH', h.startDate) = :month AND FUNCTION('YEAR', h.startDate) = :year")
     int getHolidayByTypeAndUser(@Param("userId") Long userId, @Param("month") int month, @Param("year") int year);
 
 }
