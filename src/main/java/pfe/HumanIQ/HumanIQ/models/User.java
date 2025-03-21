@@ -67,28 +67,45 @@ public class User implements UserDetails {
     private Set<Role> roles = new HashSet<>();
 
 
-    @OneToMany(mappedBy = "user",fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Token> tokens;
 
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     @JsonIgnore
     List<Contract> contracts;
 
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @JsonIgnore
+    List<ChatRoom> chatRooms;
 
-    @OneToMany(mappedBy = "responsableDep")
+    @OneToMany(mappedBy = "responsableDep",cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Department> departments;
     @ManyToOne
     @JsonIgnore
     private Department department;
-
+    @JsonIgnore
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Pointage> pointages;
-
+    @JsonIgnore
+    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Message>senders;
+    @JsonIgnore
+    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Message> receivers;
     public List<Department> getDepartments() {
         return departments;
+    }
+
+    public List<ChatRoom> getChatRooms() {
+        return chatRooms;
+    }
+
+    public User setChatRooms(List<ChatRoom> chatRooms) {
+        this.chatRooms = chatRooms;
+        return this;
     }
 
     public User setDepartments(List<Department> department) {
@@ -106,9 +123,11 @@ public class User implements UserDetails {
     }
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Payslip> payslips;
 
-    @ManyToMany(mappedBy = "employees")
+    @ManyToMany(mappedBy = "employees", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Project> projects;
 //    @OneToMany(mappedBy = "approvedBy", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
 //    @JsonIgnore
@@ -330,6 +349,7 @@ public class User implements UserDetails {
     public void setProfileImagePath(String profileImagePath) {
         this.profileImagePath = profileImagePath;
     }
+
 
 
 

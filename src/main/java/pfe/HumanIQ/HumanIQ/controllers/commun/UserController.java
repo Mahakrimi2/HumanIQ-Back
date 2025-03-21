@@ -58,7 +58,11 @@ public class UserController {
         List<User> users = userService.getAllUsersemp();
         return ResponseEntity.ok(users);
     }
-
+    @GetMapping("/all")
+    public ResponseEntity<List<User>> getAll() {
+        List<User> users = userService.getAllUsers();
+        return ResponseEntity.ok(users);
+    }
     @PostMapping("/user")
     public ResponseEntity<User> createUser(@RequestBody User user) {
        System.err.println ("Received user creation request: {}"+ user);
