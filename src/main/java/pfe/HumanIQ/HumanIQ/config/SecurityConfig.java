@@ -41,12 +41,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**","/api/rh/users/profileImage/**").permitAll()
                         .requestMatchers("/api/rh/**").hasAnyRole("RH","MANAGER")
-                        .requestMatchers("/api/holiday/**").hasAnyRole("EMPLOYEE","RH")
-                        .requestMatchers("/api/pdf/**").hasAnyRole("EMPLOYEE","RH")
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/api/holiday/**","/api/pdf/**").hasAnyRole("EMPLOYEE","RH")
+                        .requestMatchers("/api/admin/**","/api/test/private").hasRole("ADMIN")
                         .requestMatchers("/api/employee/**").hasRole("EMPLOYEE")
-                        .requestMatchers("/api/test/private").hasRole("ADMIN")
-                        .requestMatchers("/api/pointages/**","/api/users/**").hasAnyRole("EMPLOYEE","RH","MANAGER")
+                        .requestMatchers("/api/pointages/**","/api/users/**","/message/**","/api/chatroom/**"
+                        ,"/app/**","/topic/**","/ws/**"
+                        ).permitAll()
                         .requestMatchers("/api/manager/**").hasRole("MANAGER")
                         .anyRequest().authenticated()
                 )
@@ -60,9 +60,8 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:4200")); // Remplacez par vos domaines autorisés
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-        configuration.setAllowCredentials(true); // Permet d'envoyer des cookies avec CORS si nécessaire
-
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type","Cache-Control"));
+        configuration.setAllowCredentials(true); // Autorise les credentials (cookies, headers d’auth)
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
