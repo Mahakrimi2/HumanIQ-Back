@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pfe.HumanIQ.HumanIQ.models.*;
 import pfe.HumanIQ.HumanIQ.repositories.ProjectRepository;
+import pfe.HumanIQ.HumanIQ.repositories.UserRepo;
 import pfe.HumanIQ.HumanIQ.services.serviceUser.UserServiceImp;
 
 import java.util.HashSet;
@@ -16,6 +17,8 @@ public class ProjectService {
     private ProjectRepository projectRepository;
     @Autowired
     private UserServiceImp userServiceImp;
+    @Autowired
+    private UserRepo userRepo;
 
     public List<Project> getAllProjects() {
         return projectRepository.findAll();
@@ -69,5 +72,15 @@ public class ProjectService {
 
     public List<Project> getProjectsByStatus(ProjectStatus status) {
         return projectRepository.findByStatus(status);
+    }
+
+
+    public List<Project> getProjectsByEmployeeUsername(String username) {
+        // Trouver l'utilisateur par son username
+        User employee = userRepo.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé avec le username: " + username));
+
+        // Récupérer les projets assignés à cet utilisateur
+        return projectRepository.findByEmployees_Id(employee.getId());
     }
 }
