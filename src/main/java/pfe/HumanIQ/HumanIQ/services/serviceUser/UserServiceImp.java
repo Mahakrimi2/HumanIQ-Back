@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 import pfe.HumanIQ.HumanIQ.DTO.request.ChangePasswordRequest;
 import pfe.HumanIQ.HumanIQ.models.*;
 import pfe.HumanIQ.HumanIQ.repositories.DepartmentRepository;
@@ -83,14 +84,22 @@ public class UserServiceImp implements UserService, UserDetailsService {
             throw new RuntimeException("username already exists");
         }
 
-        Role role = roleRepository.findByName(UserRole.ROLE_EMPLOYEE);
-        ////user.setPassword(passwordEncoder.encode(user.getPassword()));
         Set<Role> userRoles = new HashSet<>();
-        userRoles.add(role);
+        for (Role roleRequest : user.getRoles()) {
+            Role role = roleRepository.findByName(roleRequest.getName());
+            if (role != null) {
+                userRoles.add(role);
+            } else {
+                throw new RuntimeException("Role not found: " + roleRequest.getName());
+            }
+        }
+
+
+        ////user.setPassword(passwordEncoder.encode(user.getPassword()));
         User newUser = new User();
         newUser.setUsername(user.getUsername());
         newUser.setPassword(passwordEncoder.encode(user.getPassword()));
-        System.out.println(role);
+
         newUser.setRoles(userRoles);
         newUser.setFullname(user.getFullname());
         newUser.setAddress(user.getAddress());
@@ -111,16 +120,20 @@ public class UserServiceImp implements UserService, UserDetailsService {
         User existingUser = findUserById(id);
         if(existingUser != null){
             Optional<User> userWithEmail = userRepository.findByUsername(user.getUsername());
-//            if (userWithEmail.isPresent() && !userWithEmail.get().getId().equals(user.getId())) {
-//                throw new RuntimeException("Email already exists");
-//            }
-//            if (user.getPassword() != null && !user.getPassword().equals(existingUser.getPassword())) {
-//                user.setPassword(passwordEncoder.encode(user.getPassword()));
-//            } else {
-//                user.setPassword(existingUser.getPassword());
-//            }
             existingUser.setUsername(user.getUsername());
-            //existingUser.setRoles(user.getRoles());
+            // Mise à jour des rôles
+
+            Set<Role> userRoles = new HashSet<>();
+            for (Role roleRequest : user.getRoles()) {
+                Role role = roleRepository.findByName(roleRequest.getName());
+                if (role != null) {
+                    userRoles.add(role);
+                } else {
+                    throw new RuntimeException("Role not found: " + roleRequest.getName());
+                }
+            }
+
+            existingUser.setRoles(userRoles);
             existingUser.setFullname(user.getFullname());
             existingUser.setAddress(user.getAddress());
             //existingUser.setGender(user.getGender() != null ? user.getGender() : existingUser.getGender());
@@ -149,7 +162,7 @@ public class UserServiceImp implements UserService, UserDetailsService {
        if (user == null) {
            throw new RuntimeException("user does not exist");
        }
-       user.setDisabled(true);
+       user.setIsDisabled(true);
         userRepository.save(user);
 
     }
@@ -234,8 +247,24 @@ public class UserServiceImp implements UserService, UserDetailsService {
     public List<User> getUsersByIds(List<Long> ids) {
         return userRepository.findAllById(ids);
     }
+    public List<User> getAllUsersWithRoles() {
+        return userRepository.findAllWithRoles();
+    }
 
 
+    public Map<String, Long> getCountOfUsersByRole() {
+        List<Object[]> results = userRepository.countUsersByRole();
+        Map<String, Long> countByRole = new HashMap<>();
+
+        for (Object[] result : results) {
+            UserRole role = (UserRole) result[0]; // Récupère l'énumération UserRole
+            String roleName = role.name(); // Convertit l'énumération en chaîne de caractères
+            Long count = (Long) result[1];
+            countByRole.put(roleName, count);
+        }
+
+        return countByRole;
+    }
 }
 
 

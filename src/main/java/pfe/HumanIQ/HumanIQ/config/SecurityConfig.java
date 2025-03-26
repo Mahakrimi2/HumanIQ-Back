@@ -40,8 +40,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**","/api/rh/users/profileImage/**").permitAll()
-                        .requestMatchers("/api/rh/**").hasAnyRole("RH","MANAGER")
-                        .requestMatchers("/api/holiday/**","/api/pdf/**").hasAnyRole("EMPLOYEE","RH")
+                        .requestMatchers("/api/rh/**").hasAnyRole("RH","MANAGER","SUPERADMIN")
+                        .requestMatchers("/api/holiday/**","/api/pdf/**").hasAnyRole("EMPLOYEE","RH","SUPERADMIN")
                         .requestMatchers("/api/admin/**","/api/test/private").hasRole("ADMIN")
                         .requestMatchers("/api/employee/**").hasRole("EMPLOYEE")
                         .requestMatchers("/api/pointages/**","/api/users/**","/message/**","/api/chatroom/**"

@@ -145,12 +145,12 @@ public class User implements UserDetails {
     @JsonIgnore
     private List<Holiday> holidays;
 
-    public Boolean getDisabled() {
+    public Boolean getIsDisabled() {
         return isDisabled;
     }
 
-    public void setDisabled(Boolean disabled) {
-        isDisabled = disabled;
+    public void setIsDisabled(Boolean disabled) {
+        this.isDisabled = disabled;
     }
 
     public Set<Role> getRoles() {

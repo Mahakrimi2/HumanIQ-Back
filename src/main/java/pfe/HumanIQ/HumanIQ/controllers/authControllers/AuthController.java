@@ -76,7 +76,7 @@ public class AuthController {
             });
         
         System.out.println("Found user in database: " + user.getUsername());
-        if (user.getDisabled().equals(true)) {
+        if (user.getIsDisabled().equals(true)) {
             System.err.println("Account is desactivated for user: " + authRequest.getUsername());
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new LoginDTO("Account is deactivated. Please contact the administrator."));
         }

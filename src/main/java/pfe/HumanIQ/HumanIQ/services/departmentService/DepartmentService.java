@@ -1,6 +1,5 @@
 package pfe.HumanIQ.HumanIQ.services.departmentService;
 
-import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
@@ -32,9 +31,6 @@ public class DepartmentService {
     public List<Department> getAllDepartments() {
         return departmentRepository.findAll();
     }
-
-
-
 
 
     public Department getDepartmentById(Long id) {
@@ -123,4 +119,13 @@ public class DepartmentService {
     public void deleteDepartment(Long id) {
         departmentRepository.deleteById(id);
     }
+
+
+    public Department getDepartmentByName(DepartmentName departmentName) {
+        return departmentRepository.findByName(departmentName)
+                .orElseThrow(() -> new RuntimeException("Département non trouvé"));
+    }
+
+
+
 }

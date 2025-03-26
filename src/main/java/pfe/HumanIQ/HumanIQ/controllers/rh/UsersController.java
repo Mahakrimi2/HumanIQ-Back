@@ -17,11 +17,15 @@ import pfe.HumanIQ.HumanIQ.DTO.request.ChangePasswordRequest;
 import pfe.HumanIQ.HumanIQ.emailConfig.EmailDetails;
 import pfe.HumanIQ.HumanIQ.emailConfig.EmailService;
 import pfe.HumanIQ.HumanIQ.models.Department;
+import pfe.HumanIQ.HumanIQ.models.Role;
 import pfe.HumanIQ.HumanIQ.models.User;
+import pfe.HumanIQ.HumanIQ.models.UserRole;
+import pfe.HumanIQ.HumanIQ.repositories.RoleRepository;
 import pfe.HumanIQ.HumanIQ.repositories.UserRepo;
 import pfe.HumanIQ.HumanIQ.services.departmentService.DepartmentService;
 import pfe.HumanIQ.HumanIQ.services.serviceAuth.TokenValidationService;
 import pfe.HumanIQ.HumanIQ.services.serviceUser.UserService;
+import pfe.HumanIQ.HumanIQ.services.serviceUser.UserServiceImp;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,6 +35,7 @@ import java.nio.file.StandardCopyOption;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -42,25 +47,42 @@ public class UsersController {
     private final DepartmentService departmentService;
     private  final EmailService emailService;
     private final UserRepo userRepo;
+    private final UserServiceImp userServiceImp;
+    private final RoleRepository roleRepository;
 
     @Autowired
-    public UsersController(UserService userService, TokenValidationService tokenValidationService, DepartmentService departmentService, EmailService emailService, UserRepo userRepo) {
+    public UsersController(UserService userService, TokenValidationService tokenValidationService, DepartmentService departmentService, EmailService emailService, UserRepo userRepo, UserServiceImp userServiceImp, RoleRepository roleRepository) {
         this.userService = userService;
         this.tokenValidationService = tokenValidationService;
         this.departmentService = departmentService;
 
         this.emailService = emailService;
         this.userRepo = userRepo;
+        this.userServiceImp = userServiceImp;
+        this.roleRepository = roleRepository;
     }
 
 
     // User Management
     @GetMapping("/users")
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<User>> getAllUsersEmp() {
         List<User> users = userService.getAllUsersemp();
         return ResponseEntity.ok(users);
     }
+    @GetMapping("/all-users")
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = userServiceImp.getAllUsers();
+        return ResponseEntity.ok(users);
+    }
 
+    @GetMapping("/all-with-roles")
+    public List<User> getAllUsersWithRoles() {
+        return userServiceImp.getAllUsersWithRoles();
+    }
+    @GetMapping("/count-by-role")
+    public Map<String, Long> getCountOfUsersByRole() {
+        return userServiceImp.getCountOfUsersByRole();
+    }
     @PostMapping("/user")
     public ResponseEntity<User> createUser(@RequestBody User user) {
        System.err.println ("Received user creation request: {}"+ user);
@@ -257,5 +279,12 @@ public class UsersController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unexpected error occurred");
         }
+    }
+
+    @GetMapping("/roles")
+
+    public ResponseEntity<UserRole[]> getAllRoles() {
+        // Retourne directement toutes les valeurs de l'enum
+        return ResponseEntity.ok(UserRole.values());
     }
 }

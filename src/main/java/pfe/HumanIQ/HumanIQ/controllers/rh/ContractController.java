@@ -33,6 +33,7 @@ public class ContractController {
     public List<Contract> getAllContracts() {
         return contractService.getAllContracts();
     }
+
     @GetMapping("/contractsbystatus")
     public List<Contract> getAllContractsbystat() {
         return contractService.getAllContractsbystatus();

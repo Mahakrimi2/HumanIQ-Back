@@ -2,6 +2,7 @@ package pfe.HumanIQ.HumanIQ.repositories;
 
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import pfe.HumanIQ.HumanIQ.models.*;
 
@@ -16,4 +17,16 @@ public interface UserRepo extends JpaRepository<User,Long>{
     // Trouver les utilisateurs qui ne sont pas responsables d'un département
     List<User> findByDepartmentIsNull();
     List<User> findByRoles(Role role);
+
+    @Query("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.roles")
+    List<User> findAllWithRoles();
+
+
+
+
+
+    @Query("SELECT r.name, COUNT(u) FROM User u JOIN u.roles r GROUP BY r.name")
+    List<Object[]> countUsersByRole();
+
+    List<User> findByDepartment(DepartmentName departmentName);
 }

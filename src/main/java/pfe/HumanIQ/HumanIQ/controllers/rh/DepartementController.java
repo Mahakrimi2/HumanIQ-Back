@@ -29,7 +29,12 @@ public class DepartementController {
         List<Department> departments = departmentService.getAllDepartments();
         return ResponseEntity.ok(departments);
     }
-
+//    @GetMapping("/departments/names")
+//    public List<String> getDepartmentsNames() {
+//        return Arrays.stream(DepartmentName.values())
+//                .map(Enum::name)
+//                .toList();
+//    }
     @GetMapping("/department/{id}")
     public ResponseEntity<Department> getDepartmentById(@PathVariable Long id) {
         Optional<Department> department = Optional.ofNullable(departmentService.getDepartmentById(id));
@@ -58,7 +63,6 @@ public class DepartementController {
 
     @GetMapping("/department/names")
     public List<DepartmentName> getDepartmentNames() {
-
         return Arrays.asList(DepartmentName.values());
     }
 
@@ -101,5 +105,19 @@ public class DepartementController {
     public List<User> getAvailableHeads() {
         return departmentService.getAvailableHeads();
     }
+
+    @GetMapping("/department/name/{departmentName}")
+    public ResponseEntity<?> getDepartmentByName(@PathVariable DepartmentName departmentName) {
+        try {
+            // Récupérer le département par son nom
+            Department department = (Department) departmentService.getDepartmentByName(departmentName);
+
+            // Retourner le département avec ses employés associés
+            return ResponseEntity.ok(department);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
 
 }
