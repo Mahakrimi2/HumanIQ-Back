@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import pfe.HumanIQ.HumanIQ.models.Department;
 import pfe.HumanIQ.HumanIQ.models.DepartmentName;
 import pfe.HumanIQ.HumanIQ.models.User;
+import pfe.HumanIQ.HumanIQ.repositories.DepartmentRepository;
 import pfe.HumanIQ.HumanIQ.repositories.UserRepo;
 import pfe.HumanIQ.HumanIQ.services.departmentService.DepartmentService;
 
@@ -18,10 +19,13 @@ import java.util.Optional;
 public class DepartementController {
     private final DepartmentService departmentService;
     private final UserRepo userRepo;
+    private final DepartmentRepository departmentRepository;
 
-    public DepartementController(DepartmentService departmentService, UserRepo userRepo) {
+    public DepartementController(DepartmentService departmentService, UserRepo userRepo,
+                                 DepartmentRepository departmentRepository) {
         this.departmentService = departmentService;
         this.userRepo = userRepo;
+        this.departmentRepository = departmentRepository;
     }
 
     @GetMapping("/departments")
@@ -29,12 +33,13 @@ public class DepartementController {
         List<Department> departments = departmentService.getAllDepartments();
         return ResponseEntity.ok(departments);
     }
-//    @GetMapping("/departments/names")
-//    public List<String> getDepartmentsNames() {
-//        return Arrays.stream(DepartmentName.values())
-//                .map(Enum::name)
-//                .toList();
-//    }
+    @GetMapping("/departments/names")
+    public List<String> getDepartmentsNames() {
+        return Arrays.stream(DepartmentName.values())
+                .map(Enum::name)
+                .toList();
+    }
+
     @GetMapping("/department/{id}")
     public ResponseEntity<Department> getDepartmentById(@PathVariable Long id) {
         Optional<Department> department = Optional.ofNullable(departmentService.getDepartmentById(id));
@@ -42,9 +47,18 @@ public class DepartementController {
     }
 
     @PostMapping("/departments/{id}/{department}")
-    public ResponseEntity<?> createDepartment(@PathVariable DepartmentName department,@PathVariable Long id) {
+    public ResponseEntity<?> createDepartment(@PathVariable DepartmentName department,@PathVariable(required = false) String id) {
         try {
-            Department createdDepartment = departmentService.createDepartment(department,id);
+            Long convertedId = null;
+            if (id != null && !id.equals("undefined") && !id.isEmpty()) {
+                convertedId = Long.parseLong(id);
+            }
+            Optional<Department> existingDepartment = departmentRepository.findByName(department);
+            if (existingDepartment.isPresent()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Le département avec ce nom existe déjà");
+            }
+
+            Department createdDepartment = departmentService.createDepartment(department,convertedId);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdDepartment);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -52,9 +66,13 @@ public class DepartementController {
     }
 
     @PutMapping("/departments/{id}")
-    public ResponseEntity<?> updateDepartment(@PathVariable Long id, @RequestBody Department department,@RequestParam Long iduser) {
+    public ResponseEntity<?> updateDepartment(@PathVariable Long id, @RequestBody Department department,@RequestParam(value = "iduser",required = false) String iduser) {
         try {
-            Department updatedDepartment = departmentService.updateDepartment(id, department,iduser);
+            Long idUserLong = null;
+            if (iduser != null && !iduser.equals("NaN") && !iduser.isEmpty()) {
+                idUserLong = Long.parseLong(iduser);
+            }
+            Department updatedDepartment = departmentService.updateDepartment(id, department,idUserLong);
             return ResponseEntity.ok(updatedDepartment);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

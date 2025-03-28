@@ -5,8 +5,10 @@ import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import pfe.HumanIQ.HumanIQ.models.*;
 import pfe.HumanIQ.HumanIQ.repositories.DepartmentRepository;
+import pfe.HumanIQ.HumanIQ.repositories.RoleRepository;
 import pfe.HumanIQ.HumanIQ.repositories.UserRepo;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -20,7 +22,8 @@ public class DepartmentService {
 
     @Autowired
     private UserRepo userRepository;
-
+    @Autowired
+    private RoleRepository roleRepository;
 
     @Autowired
     public DepartmentService(DepartmentRepository departmentRepository, UserRepo userRepository) {
@@ -42,33 +45,44 @@ public class DepartmentService {
     public Department createDepartment(DepartmentName name,Long id) {
         Department department = new Department();
         department.setName(name);
-        User responsable = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Responsable non trouvé"));
-        department.setResponsableDep(responsable);
+        if (id != null && id > 0) {
+            User responsable = userRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Responsable non trouvé"));
+            department.setResponsableDep(responsable);
+        } else {
+            department.setResponsableDep(null);
+        }
         return departmentRepository.save(department);
     }
 
 
 
-
-    public Department updateDepartment(Long id, Department  departmentName,Long iduser) {
-        System.out.println("Data received from frontend: " + departmentName.getName()); // Afficher les données reçues
+    public Department updateDepartment(Long id, Department departmentName, Long iduser) {
+        System.out.println("Data received from frontend: " + departmentName.getName() + ", Responsible user ID: " + iduser);
 
         Department existingDepartment = departmentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Department not found with id: " + id));
-        User responsableDep = userRepository.findById(iduser).get();
-        if (responsableDep.getDepartments() != null && !responsableDep.getDepartments().isEmpty()
-                && !responsableDep.getDepartments().contains(this)) {
-            throw new IllegalStateException("Cet utilisateur est déjà responsable d'un autre département.");
+
+        if (departmentName.getName() != null ) {
+            existingDepartment.setName(departmentName.getName());
         }
-        existingDepartment.setResponsableDep(responsableDep);
-        existingDepartment.setName(departmentName.getName());
+
+        if (iduser != null) {
+            User responsableDep = userRepository.findById(iduser)
+                    .orElseThrow(() -> new RuntimeException("Responsable non trouvé"));
+
+            // Vérification si l'utilisateur est déjà responsable d'un autre département
+            if (responsableDep.getDepartments() != null && !responsableDep.getDepartments().isEmpty()) {
+                throw new IllegalStateException("Cet utilisateur est déjà responsable d'un autre département.");
+            }
+
+            existingDepartment.setResponsableDep(responsableDep);
+        }
+
         Department updatedDepartment = departmentRepository.save(existingDepartment);
-
-
-
         return updatedDepartment;
     }
+
     public Department addEmployeeToDepartment(Long departmentId, Long employeeId) {
         Department department = departmentRepository.findById(departmentId)
                 .orElseThrow(() -> new RuntimeException("Département non trouvé"));
@@ -95,7 +109,9 @@ public class DepartmentService {
         return departmentRepository.save(department);
     }
     public List<User> getAvailableEmployees() {
-        return userRepository.findByDepartmentIsNull();
+
+        Role role = roleRepository.findByName(UserRole.ROLE_EMPLOYEE);
+        return userRepository.findByRoles(role);
     }
 
     public List<User> getAvailableHeads() {
