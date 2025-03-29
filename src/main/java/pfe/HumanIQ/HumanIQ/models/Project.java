@@ -30,6 +30,10 @@ public class Project {
     @Enumerated(EnumType.STRING)
     private ProjectStatus status;
 
+    @Enumerated(EnumType.STRING)
+    private PriorityName priority;
+
+
 
     @ManyToOne
     @JoinColumn(name = "project_manager_id")
@@ -105,5 +109,13 @@ public class Project {
 
     public void setEmployees(List<User> employees) {
         this.employees = employees;
+    }
+
+    public PriorityName getPriority() {
+        return priority;
+    }
+
+    public void setPriority(PriorityName priority) {
+        this.priority = priority;
     }
 }

@@ -61,6 +61,7 @@ public class ProjectService {
         project.setStartDate(projectDetails.getStartDate());
         project.setEndDate(projectDetails.getEndDate());
         project.setStatus(projectDetails.getStatus());
+        project.setPriority(projectDetails.getPriority());
         return projectRepository.save(project);
     }
 
@@ -72,6 +73,10 @@ public class ProjectService {
 
     public List<Project> getProjectsByStatus(ProjectStatus status) {
         return projectRepository.findByStatus(status);
+    }
+
+    public List<Project> getProjectsByPriority(PriorityName priority) {
+        return projectRepository.findByPriority(priority);
     }
 
 

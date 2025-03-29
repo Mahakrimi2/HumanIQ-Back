@@ -3,17 +3,12 @@ package pfe.HumanIQ.HumanIQ.controllers.manager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pfe.HumanIQ.HumanIQ.models.DepartmentName;
-import pfe.HumanIQ.HumanIQ.models.Project;
-import pfe.HumanIQ.HumanIQ.models.ProjectStatus;
-import pfe.HumanIQ.HumanIQ.models.User;
+import pfe.HumanIQ.HumanIQ.models.*;
 import pfe.HumanIQ.HumanIQ.services.projectservice.ProjectService;
 import pfe.HumanIQ.HumanIQ.services.serviceUser.UserServiceImp;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api/manager")
@@ -68,6 +63,13 @@ public class ManagerController {
     public List<ProjectStatus> getProjectsByStatus() {
         return Arrays.asList(ProjectStatus.values());
     }
+
+    @GetMapping("/priority")
+    public List<PriorityName> getProjectsByPriority() {
+        return Arrays.asList(PriorityName.values());
+    }
+
+
 
 
 
