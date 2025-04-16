@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -21,22 +23,20 @@ public class Project {
     private Long id;
     private String name;
     private String description;
-
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
-
     @Enumerated(EnumType.STRING)
     private ProjectStatus status;
-
     @Enumerated(EnumType.STRING)
     private PriorityName priority;
 
 
 
     @ManyToOne
-    @JoinColumn(name = "project_manager_id")
+    @JoinColumn(name = "project_manager_id", nullable = true)
+
     private User projectManager;
 
     public User getProjectManager() {

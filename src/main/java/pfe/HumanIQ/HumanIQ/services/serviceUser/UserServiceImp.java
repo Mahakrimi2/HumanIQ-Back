@@ -1,5 +1,6 @@
 package pfe.HumanIQ.HumanIQ.services.serviceUser;
 
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,10 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.GetMapping;
 import pfe.HumanIQ.HumanIQ.DTO.request.ChangePasswordRequest;
 import pfe.HumanIQ.HumanIQ.models.*;
-import pfe.HumanIQ.HumanIQ.repositories.DepartmentRepository;
-import pfe.HumanIQ.HumanIQ.repositories.RoleRepository;
-import pfe.HumanIQ.HumanIQ.repositories.TokenRepo;
-import pfe.HumanIQ.HumanIQ.repositories.UserRepo;
+import pfe.HumanIQ.HumanIQ.repositories.*;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -26,12 +24,15 @@ public class UserServiceImp implements UserService, UserDetailsService {
     private final TokenRepo tokenRepository;
     private final RoleRepository roleRepository;
     private final DepartmentRepository departmentRepository;
-    public UserServiceImp(UserRepo userRepository, PasswordEncoder passwordEncoder, TokenRepo tokenRepository, RoleRepository roleRepository, DepartmentRepository departmentRepository) {
+    private final ProjectRepository projectRepository;
+
+    public UserServiceImp(UserRepo userRepository, PasswordEncoder passwordEncoder, TokenRepo tokenRepository, RoleRepository roleRepository, DepartmentRepository departmentRepository, ProjectRepository projectRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenRepository = tokenRepository;
         this.roleRepository = roleRepository;
         this.departmentRepository = departmentRepository;
+        this.projectRepository = projectRepository;
     }
 
     @Override
@@ -43,11 +44,6 @@ public class UserServiceImp implements UserService, UserDetailsService {
         Role role = roleRepository.findByName(UserRole.ROLE_EMPLOYEE);
         return userRepository.findByRoles(role);
     }
-
-
-
-  
-
 
     @Override
     public User createEmployee(User user,Long id) {
@@ -79,23 +75,31 @@ public class UserServiceImp implements UserService, UserDetailsService {
         return userRepository.save(newUser);
     }
     @Override
-    public User createUser(User user) {
+    public User createUser(User user,Long id) {
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
             throw new RuntimeException("username already exists");
         }
 
+        Department department = departmentRepository.findById(id).orElse(null);
+        if (department == null) {
+            return null;
+        }
+
         Set<Role> userRoles = new HashSet<>();
+        System.out.println(user.getRoles());
         for (Role roleRequest : user.getRoles()) {
             Role role = roleRepository.findByName(roleRequest.getName());
+            System.out.println(role.getName());
             if (role != null) {
+                System.out.println(role.getName());
                 userRoles.add(role);
             } else {
+
                 throw new RuntimeException("Role not found: " + roleRequest.getName());
             }
         }
 
 
-        ////user.setPassword(passwordEncoder.encode(user.getPassword()));
         User newUser = new User();
         newUser.setUsername(user.getUsername());
         newUser.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -108,7 +112,7 @@ public class UserServiceImp implements UserService, UserDetailsService {
         newUser.setGender(user.getGender());
         newUser.setPosition(user.getPosition());
         newUser.setTelNumber(user.getTelNumber());
-        newUser.setDepartments(user.getDepartments());
+        newUser.setDepartment(department);
         return userRepository.save(newUser);
     }
 
@@ -162,26 +166,33 @@ public class UserServiceImp implements UserService, UserDetailsService {
        if (user == null) {
            throw new RuntimeException("user does not exist");
        }
-       user.setIsDisabled(true);
+        List<Project> projects = projectRepository.findByProjectManagerId(id);
+        for (Project p : projects) {
+            p.setProjectManager(null);
+        }
+        projectRepository.saveAll(projects);
+        userRepository.delete(user);
+
+    }
+
+    public void enableUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        user.setIsDisabled(false);
+        userRepository.save(user);
+    }
+
+    public void disactivateUser(Long id) {
+        User user = userRepository.findById(id).orElse(null);
+        if (user == null) {
+            throw new RuntimeException("user does not exist");
+        }
+        user.setIsDisabled(true);
         userRepository.save(user);
 
     }
 
-//    @Override
-//    public void deleteUser(Long id) {
-//        User user = userRepository.findById(id)
-//                .orElseThrow(() -> new RuntimeException("User not found"));
-//        user.setActive(false);
-//        userRepository.save(user);
-//    }
 
-
-//    public void activateUser(Long id) {
-//        User user = userRepository.findById(id)
-//                .orElseThrow(() -> new RuntimeException("User not found"));
-//        user.setActive(true);
-//        userRepository.save(user);
-//    }
 
 
     @Override

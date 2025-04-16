@@ -14,7 +14,7 @@ public class Message {
 
     @Lob
     @Column(columnDefinition = "text")
-    private String content; // Contenu du message
+    private String content;
     private LocalDateTime sentAt;
     @ManyToOne
     @JoinColumn(name = "chatroom_id")

@@ -28,6 +28,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -64,9 +65,9 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
     @PostMapping("/user")
-    public ResponseEntity<User> createUser(@RequestBody User user) {
+    public ResponseEntity<User> createUser(@RequestBody User user,@RequestParam Long id) {
        System.err.println ("Received user creation request: {}"+ user);
-        User createdUser = userService.createUser(user);
+        User createdUser = userService.createUser(user,id);
         return ResponseEntity.ok(createdUser);
     }
 
@@ -167,39 +168,7 @@ public class UserController {
     }
 
 
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user,@RequestParam Long id) {
-        try {
-            System.out.println("Registering new user with username: " + user.getUsername());
 
-
-
-            User createdUser = userService.createEmployee(user,id);
-            String token = tokenValidationService.createVerificationToken(user.getUsername());
-            String subject = "Your Login Details";
-            String loginUrl = "http://localhost:4300/login";
-            String message = "Welcome to our HumanIQ system!\n\n"
-                    + "Here are your login details:\n"
-                    + "Email: " + createdUser.getUsername() + "\n"
-                    + "Password: " + user.getPassword() + "\n\n"
-                    + "For security reasons, we recommend changing your password on your first login.\n"
-                    + "You can change your password after logging in by navigating to the 'Profile' section.\n\n"
-                    + "Click the link below to log in:\n"
-                    + loginUrl;
-
-            EmailDetails details = new EmailDetails();
-            details.setRecipient(createdUser.getUsername());
-            details.setSubject(subject);
-            details.setMsgBody(message);
-
-            emailService.sendSimpleMail(details);
-
-            return ResponseEntity.status(HttpStatus.CREATED).body("User created. Please check your email to activate your account.");
-        } catch (Exception e) {
-            System.err.println("User registration failed: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User creation failed: " + e.getMessage());
-        }
-    }
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -217,15 +186,6 @@ public class UserController {
         return ResponseEntity.ok(currentUser);
     }
 
-    @PostMapping("/users/change-password")
-    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
-        try {
-            userService.changePassword(request);
-            return ResponseEntity.ok("Password changed successfully");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
 
     @PutMapping("/users/profile")
     public ResponseEntity<User> updateCurrentUserProfile(@RequestBody User updatedUser) {

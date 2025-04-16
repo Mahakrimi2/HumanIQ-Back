@@ -29,8 +29,7 @@ public class User implements UserDetails {
     private String gender;
     private String fullname;
     private String address;
-    private String nationalID
-            ;
+    private String nationalID;
     private String position;
     private Double salary;
     private LocalDate dateOfBirth;
@@ -126,7 +125,7 @@ public class User implements UserDetails {
     @JsonIgnore
     private List<Payslip> payslips;
 
-    @ManyToMany(mappedBy = "employees", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "employees",fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Project> projects;
 //    @OneToMany(mappedBy = "approvedBy", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -349,8 +348,9 @@ public class User implements UserDetails {
     public void setProfileImagePath(String profileImagePath) {
         this.profileImagePath = profileImagePath;
     }
-
-
+    public List<Project> getProjects() {
+        return projects;
+    }
 
 
 }

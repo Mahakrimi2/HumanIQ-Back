@@ -29,7 +29,7 @@ public class EmailController {
         details.setSubject(subject);
         details.setMsgBody(msgBody);
 
-        return emailService.sendMailWithAttachment(details, attachment); // Pass attachment separately
+        return emailService.sendMailWithAttachment(details, attachment);
     }
 
 

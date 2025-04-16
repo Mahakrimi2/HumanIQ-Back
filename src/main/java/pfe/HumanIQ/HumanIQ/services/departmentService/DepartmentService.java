@@ -133,6 +133,8 @@ public class DepartmentService {
     }
 
     public void deleteDepartment(Long id) {
+        userRepository.detachUsersFromDepartment(id);
+
         departmentRepository.deleteById(id);
     }
 

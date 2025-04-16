@@ -9,8 +9,7 @@ public class MessageDto {
     private Long chatroomId;
     @Lob
     @Column(columnDefinition = "text")
-    private String content; // Contenu du message
-
+    private String content;
     public Long getChatroomId() {
         return chatroomId;
     }

@@ -159,7 +159,6 @@ public class Auto {
 
     LocalDate today = LocalDate.now();
 
-    // Formater le mois et l'année (exemple : "FEBRUARY 2025")
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy");
     String monthYear = today.format(formatter).toUpperCase();
 

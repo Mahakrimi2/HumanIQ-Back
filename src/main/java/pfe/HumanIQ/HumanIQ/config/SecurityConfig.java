@@ -40,15 +40,17 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**","/api/rh/users/profileImage/**").permitAll()
+                        .requestMatchers("api/password/**").permitAll()
                         .requestMatchers("/api/rh/**").hasAnyRole("RH","MANAGER","SUPERADMIN")
                         .requestMatchers("/api/holiday/**","/api/pdf/**").hasAnyRole("EMPLOYEE","RH","SUPERADMIN")
                         .requestMatchers("/api/admin/**","/api/test/private").hasRole("ADMIN")
                         .requestMatchers("/api/employee/**").hasRole("EMPLOYEE")
+
                         .requestMatchers("/api/events/**").permitAll()
                         .requestMatchers("/api/pointages/**","/api/users/**","/message/**","/api/chatroom/**"
                         ,"/app/**","/topic/**","/ws/**"
                         ).permitAll()
-                        .requestMatchers("/api/manager/**").hasRole("MANAGER")
+                        .requestMatchers("/api/manager/**").hasAnyRole("MANAGER","SUPERADMIN")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -60,7 +62,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("http://localhost:4200")); // Remplacez par vos domaines autorisés
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE","PATCH","OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type","Cache-Control"));
         configuration.setAllowCredentials(true); // Autorise les credentials (cookies, headers d’auth)
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

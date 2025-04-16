@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface UserService extends UserDetailsService {
     List<User> getAllUsers();
-    User createUser(User user);
+    public User createUser(User user,Long id);
 
 
 

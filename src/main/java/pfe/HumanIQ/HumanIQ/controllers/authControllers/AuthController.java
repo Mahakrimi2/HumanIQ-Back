@@ -25,7 +25,7 @@ import java.util.Collections;
 @RestController
 @RequestMapping("/api/auth")
 @Validated
-@CrossOrigin(origins = "http://localhost:4400")
+@CrossOrigin(origins = "https://localhost:4400")
 public class AuthController {
 
     private final UserService userService;
@@ -45,20 +45,20 @@ public class AuthController {
         this.userRepository = userRepository;
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
-
-        try {
-            System.out.println("Registering new user with username: " + user.getUsername());
-            User createdUser = userService.createUser(user);
-            tokenValidationService.createVerificationToken(user.getUsername());
-
-        return ResponseEntity.status(HttpStatus.CREATED).body("User created. Please check your email to activate your account.");
-        } catch (Exception e) {
-            System.err.println("User registration failed: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User creation failed: " + e.getMessage());
-        }
-    }
+//    @PostMapping("/register")
+//    public ResponseEntity<?> register(@RequestBody User user) {
+//
+//        try {
+//            System.out.println("Registering new user with username: " + user.getUsername());
+//            User createdUser = userService.createUser(user);
+//            tokenValidationService.createVerificationToken(user.getUsername());
+//
+//        return ResponseEntity.status(HttpStatus.CREATED).body("User created. Please check your email to activate your account.");
+//        } catch (Exception e) {
+//            System.err.println("User registration failed: " + e.getMessage());
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User creation failed: " + e.getMessage());
+//        }
+//    }
 
     @PostMapping("/login")
     public ResponseEntity<LoginDTO> login(@RequestBody AuthRequest authRequest) {

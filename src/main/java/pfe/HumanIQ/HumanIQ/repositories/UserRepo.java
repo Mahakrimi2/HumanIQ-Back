@@ -2,7 +2,9 @@ package pfe.HumanIQ.HumanIQ.repositories;
 
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pfe.HumanIQ.HumanIQ.models.*;
 
@@ -29,4 +31,8 @@ public interface UserRepo extends JpaRepository<User,Long>{
     List<Object[]> countUsersByRole();
 
     List<User> findByDepartment(DepartmentName departmentName);
+    @Modifying
+    @Query("UPDATE User u SET u.department = NULL WHERE u.department.id = :departmentId")
+    void detachUsersFromDepartment(@Param("departmentId") Long departmentId);
+
 }

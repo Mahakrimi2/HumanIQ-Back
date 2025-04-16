@@ -33,6 +33,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -84,9 +85,9 @@ public class UsersController {
         return userServiceImp.getCountOfUsersByRole();
     }
     @PostMapping("/user")
-    public ResponseEntity<User> createUser(@RequestBody User user) {
+    public ResponseEntity<User> createUser(@RequestBody User user,@RequestParam Long id) {
        System.err.println ("Received user creation request: {}"+ user);
-        User createdUser = userService.createUser(user);
+        User createdUser = userService.createUser(user,id);
         return ResponseEntity.ok(createdUser);
     }
 
@@ -97,12 +98,22 @@ public class UsersController {
         return ResponseEntity.ok(updatedUser);
     }
 
+    @DeleteMapping("/userDisactivate/{id}")
+    public ResponseEntity<Void> disactivateUser(@PathVariable Long id) {
+        userServiceImp.disactivateUser(id);
+        return ResponseEntity.noContent().build();
+    }
+
     @DeleteMapping("/user/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
-
+    @PutMapping("/user/{id}/enable")
+    public ResponseEntity<Void> enableUser(@PathVariable Long id) {
+        userServiceImp.enableUser(id);
+        return ResponseEntity.ok().build();
+    }
     @GetMapping("/getbyemail/{email}")
     public ResponseEntity<User> getUserById(@PathVariable String email) {
         User user = userService.findByUsername(email).get();
@@ -187,22 +198,57 @@ public class UsersController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user,@RequestParam Long id) {
+    public ResponseEntity<?> register(@RequestBody User user, @RequestParam Long id) {
         try {
             System.out.println("Registering new user with username: " + user.getUsername());
 
-
-
-            User createdUser = userService.createEmployee(user,id);
+            User createdUser = userService.createUser(user, id);
             String token = tokenValidationService.createVerificationToken(user.getUsername());
-            String subject = "Your Login Details";
-            String loginUrl = "http://localhost:4300/login";
-            String message = "Welcome to our HumanIQ system!\n\n"
-                    + "Here are your login details:\n"
-                    + "Email: " + createdUser.getUsername() + "\n"
-                    + "Password: " + user.getPassword() + "\n\n"
-                    + "Click the link below to log in:\n"
-                    + loginUrl;
+            String subject = "Your HumanIQ Account Details";
+            String loginUrl = "https://localhost:4200/login";
+
+            // Email HTML Template
+            String message = "<!DOCTYPE html>"
+                    + "<html>"
+                    + "<head>"
+                    + "<meta charset='UTF-8'>"
+                    + "<meta name='viewport' content='width=device-width, initial-scale=1.0'>"
+                    + "<style>"
+                    + "  body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }"
+                    + "  .header { background-color: #4a90e2; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }"
+                    + "  .header h1 { color: white; margin: 0; }"
+                    + "  .content { padding: 25px; background-color: #f9f9f9; border-radius: 0 0 8px 8px; border: 1px solid #e0e0e0; }"
+                    + "  .button { display: inline-block; padding: 12px 24px; background-color: #28a745; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 15px 0; }"
+                    + "  .button:hover { background-color: #218838; }"
+                    + "  .credentials { background-color: #e9f7ef; padding: 15px; border-radius: 6px; margin: 20px 0; }"
+                    + "  .footer { margin-top: 30px; font-size: 12px; color: #777; text-align: center; }"
+                    + "  @media only screen and (max-width: 600px) {"
+                    + "    .content { padding: 15px; }"
+                    + "    .button { display: block; text-align: center; }"
+                    + "  }"
+                    + "</style>"
+                    + "</head>"
+                    + "<body>"
+                    + "<div class='header'>"
+                    + "<h1>Welcome to HumanIQ</h1>"
+                    + "</div>"
+                    + "<div class='content'>"
+                    + "<p>Hello,</p>"
+                    + "<p>Your account has been successfully created. Here are your login details:</p>"
+                    + "<div class='credentials'>"
+                    + "<p><strong>Email:</strong> " + createdUser.getUsername() + "</p>"
+                    + "<p><strong>Password:</strong> " + user.getPassword() + "</p>"
+                    + "</div>"
+                    + "<p>For security reasons, we recommend changing your password after your first login.</p>"
+                    + "<a href='" + loginUrl + "' class='button'>Login to Your Account</a>"
+                    + "<p>If you have any questions, please contact our support team.</p>"
+                    + "<div class='footer'>"
+                    + "<p>© " + LocalDate.now().getYear() + " HumanIQ. All rights reserved.</p>"
+                    + "<p>This is an automated message, please do not reply.</p>"
+                    + "</div>"
+                    + "</div>"
+                    + "</body>"
+                    + "</html>";
 
             EmailDetails details = new EmailDetails();
             details.setRecipient(createdUser.getUsername());
@@ -217,6 +263,36 @@ public class UsersController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User creation failed: " + e.getMessage());
         }
     }
+//    public ResponseEntity<?> register(@RequestBody User user,@RequestParam Long id) {
+//        try {
+//            System.out.println("Registering new user with username: " + user.getUsername());
+//
+//
+//
+//            User createdUser = userService.createEmployee(user,id);
+//            String token = tokenValidationService.createVerificationToken(user.getUsername());
+//            String subject = "Your Login Details";
+//            String loginUrl = "http://localhost:4300/login";
+//            String message = "Welcome to our HumanIQ system!\n\n"
+//                    + "Here are your login details:\n"
+//                    + "Email: " + createdUser.getUsername() + "\n"
+//                    + "Password: " + user.getPassword() + "\n\n"
+//                    + "Click the link below to log in:\n"
+//                    + loginUrl;
+//
+//            EmailDetails details = new EmailDetails();
+//            details.setRecipient(createdUser.getUsername());
+//            details.setSubject(subject);
+//            details.setMsgBody(message);
+//
+//            emailService.sendSimpleMail(details);
+//
+//            return ResponseEntity.status(HttpStatus.CREATED).body("User created. Please check your email to activate your account.");
+//        } catch (Exception e) {
+//            System.err.println("User registration failed: " + e.getMessage());
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User creation failed: " + e.getMessage());
+//        }
+//    }
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -234,15 +310,7 @@ public class UsersController {
         return ResponseEntity.ok(currentUser);
     }
 
-    @PostMapping("/users/change-password")
-    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
-        try {
-            userService.changePassword(request);
-            return ResponseEntity.ok("Password changed successfully");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+
 
     @PutMapping("/users/profile")
     public ResponseEntity<User> updateCurrentUserProfile(@RequestBody User updatedUser) {

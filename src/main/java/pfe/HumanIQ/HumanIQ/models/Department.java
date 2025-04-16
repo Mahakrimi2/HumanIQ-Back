@@ -23,7 +23,7 @@ public class Department {
     @ManyToOne
     private User responsableDep;
 
-    @OneToMany(mappedBy = "department", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "department", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<User> employees;
 
 

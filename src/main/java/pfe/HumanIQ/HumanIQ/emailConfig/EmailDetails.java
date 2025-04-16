@@ -11,7 +11,7 @@ public class EmailDetails {
     private String recipient;
     private String subject;
     private String msgBody;
-      public String getRecipient() {
+    public String getRecipient() {
         return recipient;
     }
 

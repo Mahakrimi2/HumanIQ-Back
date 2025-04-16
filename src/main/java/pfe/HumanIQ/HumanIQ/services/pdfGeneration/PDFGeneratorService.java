@@ -11,6 +11,7 @@ import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
+import com.itextpdf.layout.properties.VerticalAlignment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pfe.HumanIQ.HumanIQ.models.Contract;
@@ -18,6 +19,7 @@ import pfe.HumanIQ.HumanIQ.repositories.ContractRepository;
 
 import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 @Service
@@ -25,7 +27,7 @@ public class PDFGeneratorService {
     @Autowired
     private ContractRepository contractRepository;
 
-//    public byte[] generatePdf(Long contratId) throws DocumentException {
+    //    public byte[] generatePdf(Long contratId) throws DocumentException {
 //        Optional<Contract> contratOptional = contractRepository.findById(contratId);
 //        if (contratOptional.isEmpty()) {
 //            throw new RuntimeException("Contrat non trouvé");
@@ -64,41 +66,117 @@ public class PDFGeneratorService {
             PdfDocument pdfDocument = new PdfDocument(writer);
             Document document = new Document(pdfDocument);
 
+            // Header
             Table headerTable = new Table(2).useAllAvailableWidth();
-            headerTable.addCell(new Cell().add(new Paragraph("HumanIQ").setFontSize(16).setBold()).setBorder(Border.NO_BORDER));
-            headerTable.addCell(new Cell().add(new Paragraph("Date : " + LocalDate.now())).setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER));
+            headerTable.addCell(new Cell().add(new Paragraph("Resco Development LLC").setFontSize(16).setBold()).setBorder(Border.NO_BORDER));
+            headerTable.addCell(new Cell().add(new Paragraph("Date: " + LocalDate.now())).setTextAlignment(TextAlignment.RIGHT).setBorder(Border.NO_BORDER));
             document.add(headerTable);
             document.add(new LineSeparator(new SolidLine()));
 
-            document.add(new Paragraph("\nCONTRAT " + contract.getContractType().toString().toUpperCase())
+            // Title
+            document.add(new Paragraph("\n" + contract.getContractType().toString().toUpperCase() + " AGREEMENT")
                     .setFontSize(20).setBold().setTextAlignment(TextAlignment.CENTER));
             document.add(new Paragraph("\n"));
 
-            Table table = new Table(UnitValue.createPercentArray(new float[]{30, 70})).useAllAvailableWidth();
-            table.setMarginBottom(20);
+            // 1. PARTIES IDENTIFICATION
+            document.add(new Paragraph("1. PARTIES IDENTIFICATION").setBold().setFontSize(14));
+            Table partiesTable = new Table(UnitValue.createPercentArray(new float[]{30, 70})).useAllAvailableWidth();
 
-            addStyledCell(table, "ID du contrat", String.valueOf(contract.getId()));
-            addStyledCell(table, "Nom du client", contract.getEmployee().getFullname());
-            addStyledCell(table, "Date de début", contract.getStartDate().toString());
-            addStyledCell(table, "Date de fin", contract.getEndDate().toString());
-            addStyledCell(table, "Description", contract.getDescription());
-            addStyledCell(table, "Benefits", contract.getBenefits());
-            addStyledCell(table, "salary", contract.getSalary().toString() + "tn");
-            addStyledCell(table, "Heure de travail", contract.getWorkingHours().toString());
-            document.add(table);
+            addStyledCell(partiesTable, "Company", "Resco Development: +216 74 556 656\nAddress: Av. Kheireddine Pacha, 48, Tunis, Monplaisir");
+            addStyledCell(partiesTable, "Employee", contract.getEmployee().getFullname() +
+                    "\nAddress: " + contract.getEmployee().getAddress() +
+                    "\nPhone: " + contract.getEmployee().getTelNumber() +
+                    "\nEmail: " + contract.getEmployee().getUsername());
+            document.add(partiesTable);
+            document.add(new Paragraph("\n"));
 
-            document.add(new Paragraph("Conditions Générales").setBold().setFontSize(14).setTextAlignment(TextAlignment.CENTER));
-            document.add(new Paragraph("1. Le client accepte les termes du contrat.\n2. Toute violation entraînera des sanctions légales.\n3. Le paiement doit être effectué à la date prévue.").setFontSize(10));
+            // 2. CONTRACT DETAILS
+            document.add(new Paragraph("2. CONTRACT DETAILS").setBold().setFontSize(14));
+            Table contractTable = new Table(UnitValue.createPercentArray(new float[]{30, 70})).useAllAvailableWidth();
 
-            Table signatureTable = new Table(2).useAllAvailableWidth();
-            signatureTable.addCell(new Cell().add(new Paragraph("Signature du client : "))
-                    .setBorder(Border.NO_BORDER).setTextAlignment(TextAlignment.LEFT));
 
-            signatureTable.addCell(new Cell().add(new Paragraph("Signature de l'entreprise : "))
-                    .setBorder(Border.NO_BORDER).setTextAlignment(TextAlignment.RIGHT));
+            addStyledCell(contractTable, "Contract Type", contract.getContractType().toString());
+            addStyledCell(contractTable, "Start Date", contract.getStartDate().toString());
+            addStyledCell(contractTable, "End Date", contract.getEndDate().toString());
+            addStyledCell(contractTable, "Working Hours", contract.getWorkingHours() +
+                    "\nMonday-Friday: 09:00-12:30 / 14:00-18:00");
+            addStyledCell(contractTable, "Monthly Gross Salary", contract.getSalary().toString() + " TND" +
+                    "\nPayment on the 5th of each month by bank transfer");
+            addStyledCell(contractTable, "Benefits", contract.getBenefits() +
+                    "\n- Health insurance\n- Meal vouchers\n- 50% transportation coverage");
+            document.add(contractTable);
+            document.add(new Paragraph("\n"));
 
-            document.add(new Paragraph("\n")); // Ajout d'un espace
+            // 3. CONTRACTUAL CLAUSES
+            document.add(new Paragraph("3. CONTRACTUAL CLAUSES").setBold().setFontSize(14));
+
+            // Confidentiality
+            document.add(new Paragraph("3.1 Confidentiality").setBold());
+            document.add(new Paragraph("The employee agrees not to disclose the company's confidential information " +
+                    "during and after the term of this agreement. This obligation remains valid for 5 years after the contract ends."));
+
+            // Intellectual Property
+            document.add(new Paragraph("3.2 Intellectual Property").setBold());
+            document.add(new Paragraph("All creations made under this agreement are the exclusive property of the company."));
+
+            // Non-competition
+            document.add(new Paragraph("3.3 Non-competition").setBold());
+            document.add(new Paragraph("During the term of this agreement and for 12 months after its termination, the employee agrees not to work " +
+                    "for a competing company within a 50km radius."));
+
+            // Termination
+            document.add(new Paragraph("3.4 Termination").setBold());
+            document.add(new Paragraph("In case of early termination, a notice period of " + "contract.getNoticePeriod()" + " months must be respected. " +
+                    "Any termination must be notified in writing."));
+
+            // Renewal
+            document.add(new Paragraph("3.5 Renewal").setBold());
+            document.add(new Paragraph("This agreement may be renewed by written agreement of both parties at least 1 month before its expiration."));
+
+            // Disputes
+            document.add(new Paragraph("3.6 Disputes").setBold());
+            document.add(new Paragraph("In case of dispute, both parties agree to seek an amicable solution. " +
+                    "Failing that, the courts of [City] will have exclusive jurisdiction."));
+
+            document.add(new Paragraph("\n"));
+
+            // 4. APPLICABLE LAW
+            document.add(new Paragraph("4. APPLICABLE LAW").setBold().setFontSize(14));
+            document.add(new Paragraph("This agreement is governed by Tunisian law, and in particular by the Tunisian Labor Code."));
+            document.add(new Paragraph("\n"));
+
+            // 5. SIGNATURES
+            document.add(new Paragraph("5. SIGNATURES").setBold().setFontSize(14));
+            document.add(new Paragraph("Executed in two original copies at " + "company" +
+                    ", on " + LocalDate.now().format(DateTimeFormatter.ofPattern("MM/dd/yyyy"))));
+
+            Table signatureTable = new Table(2).useAllAvailableWidth().setMarginTop(30);
+            // Employee signature
+            signatureTable.addCell(new Cell()
+                    .add(new Paragraph("For the employee:\n\n\n"))
+                    .setBorder(Border.NO_BORDER)
+                    .setTextAlignment(TextAlignment.CENTER));
+
+            // Company signature
+            signatureTable.addCell(new Cell()
+                    .add(new Paragraph("For the company:\n\n\n"))
+                    .setBorder(Border.NO_BORDER)
+                    .setTextAlignment(TextAlignment.CENTER));
+
             document.add(signatureTable);
+
+            // Legal mentions
+            document.add(new Paragraph("\n\nRead and approved,\nAccepted for agreement")
+                    .setFontSize(10)
+                    .setTextAlignment(TextAlignment.CENTER));
+
+            // Page numbers
+            int numberOfPages = pdfDocument.getNumberOfPages();
+            for (int i = 1; i <= numberOfPages; i++) {
+                document.showTextAligned(new Paragraph(String.format("Page %d/%d", i, numberOfPages))
+                                .setFontSize(8),
+                        559, 20, i, TextAlignment.RIGHT, VerticalAlignment.BOTTOM, 0);
+            }
 
             document.close();
             return outputStream.toByteArray();
@@ -108,8 +186,10 @@ public class PDFGeneratorService {
             return null;
         }
     }
+
     private void addStyledCell(Table table, String header, String value) {
         table.addCell(new Cell().add(new Paragraph(header)).setBold().setBackgroundColor(ColorConstants.LIGHT_GRAY));
         table.addCell(new Cell().add(new Paragraph(value)));
     }
+
 }

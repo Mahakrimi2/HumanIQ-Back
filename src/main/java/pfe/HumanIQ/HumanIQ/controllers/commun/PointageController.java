@@ -3,13 +3,16 @@ package pfe.HumanIQ.HumanIQ.controllers.commun;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pfe.HumanIQ.HumanIQ.models.HolidayType;
 import pfe.HumanIQ.HumanIQ.models.Pointage;
+import pfe.HumanIQ.HumanIQ.models.PointageStatus;
 import pfe.HumanIQ.HumanIQ.repositories.PointageRepo;
 import pfe.HumanIQ.HumanIQ.repositories.UserRepo;
 import pfe.HumanIQ.HumanIQ.services.PointageService;
 
 import java.time.Duration;
-import java.util.List;
+import java.time.LocalDate;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/pointages")
@@ -87,5 +90,34 @@ public class PointageController {
         pointageRepo.delete(pointage);
         return ResponseEntity.noContent().build();
     }
+    @GetMapping("/status")
+    public List<String> getHolidayTypes() {
+        return Arrays.stream(PointageStatus.values())
+                .map(Enum::name)
+                .toList();
+    }
+    @GetMapping("/today-status/{username}")
+    public ResponseEntity<Map<String, Object>> getTodayPointageStatus(
+            @PathVariable String username) {
+
+        LocalDate today = LocalDate.now();
+        Optional<Pointage> pointageOpt = pointageRepo.findByUserUsernameAndDate(username, today);
+
+        Map<String, Object> response = new HashMap<>();
+
+        if (pointageOpt.isPresent()) {
+            Pointage pointage = pointageOpt.get();
+            response.put("hasArrival", pointage.getArrivalTime() != null);
+            response.put("hasDeparture", pointage.getDepartureTime() != null);
+            response.put("hasPause", pointage.getPauseStartTime() != null && pointage.getPauseEndTime() != null);
+        } else {
+            response.put("hasArrival", false);
+            response.put("hasDeparture", false);
+            response.put("hasPause", false);
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
 
 }

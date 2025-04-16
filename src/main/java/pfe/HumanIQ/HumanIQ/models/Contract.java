@@ -29,11 +29,7 @@ public class Contract {
     private LocalDate endDate;
     private Integer workingHours;
     private boolean archived = false;
-
-
-
     private String benefits;
-
     private Float salary;
     private Boolean Signed;
 
