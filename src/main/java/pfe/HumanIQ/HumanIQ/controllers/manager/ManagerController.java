@@ -43,7 +43,7 @@ public class ManagerController {
     }
 
 
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<Project> updateProject(
             @PathVariable Long id,
             @RequestBody Project projectDetails) {

@@ -56,11 +56,11 @@ public class ProjectService {
 
     public Project updateProject(Long id, Project projectDetails) {
         Project project = getProjectById(id);
-        project.setName(projectDetails.getName());
+        //project.setName(projectDetails.getName());
         project.setDescription(projectDetails.getDescription());
         project.setStartDate(projectDetails.getStartDate());
         project.setEndDate(projectDetails.getEndDate());
-        project.setStatus(projectDetails.getStatus());
+        project.setProjectStatus(projectDetails.getProjectStatus());
         project.setPriority(projectDetails.getPriority());
         return projectRepository.save(project);
     }
@@ -72,7 +72,7 @@ public class ProjectService {
     }
 
     public List<Project> getProjectsByStatus(ProjectStatus status) {
-        return projectRepository.findByStatus(status);
+        return projectRepository.findByProjectStatus(status);
     }
 
     public List<Project> getProjectsByPriority(PriorityName priority) {

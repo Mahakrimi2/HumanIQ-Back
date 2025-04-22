@@ -6,8 +6,6 @@ public enum ContractType {
     Freelance,
     Apprenticeship,
     Internship,
-    Par_time,
-    Seasonal
 
 //    PERMANENT,
 //    FIXED_TERM,

@@ -32,13 +32,13 @@ public class CVService {
 
 
 
-    public CV uploadCV(Long jobOfferId, MultipartFile file) {
+    public CV uploadCV(MultipartFile file) {
         try {
-            JobOffer jobOffer = jobOfferRepository.findById(jobOfferId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Offre non trouvée"));
+//            JobOffer jobOffer = jobOfferRepository.findById(jobOfferId)
+//                    .orElseThrow(() -> new ResourceNotFoundException("Offre non trouvée"));
 
 
-            if (file.isEmpty()) throw new IllegalArgumentException("Fichier vide");
+
             String originalFilename = file.getOriginalFilename();
             if (originalFilename == null) throw new IllegalArgumentException("Nom invalide");
 
@@ -59,7 +59,7 @@ public class CVService {
 
             CV cv = new CV();
             cv.setFileName(uniqueFileName);
-            cv.setJobOffer(jobOffer);
+//            cv.setJobOffer(jobOffer);
 
             return cvRepository.save(cv);
         } catch (IOException e) {
@@ -81,6 +81,9 @@ public class CVService {
         } catch (MalformedURLException e) {
             throw new RuntimeException("Erreur chemin fichier", e);
         }
+    }
+    public List<CV> getCVsByJobOffer() {
+        return cvRepository.findAll();
     }
 
 

@@ -28,7 +28,7 @@ public class Project {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
     @Enumerated(EnumType.STRING)
-    private ProjectStatus status;
+    private ProjectStatus projectStatus;
     @Enumerated(EnumType.STRING)
     private PriorityName priority;
 
@@ -95,12 +95,12 @@ public class Project {
         this.endDate = endDate;
     }
 
-    public ProjectStatus getStatus() {
-        return status;
+    public ProjectStatus getProjectStatus() {
+        return projectStatus;
     }
 
-    public void setStatus(ProjectStatus status) {
-        this.status = status;
+    public void setProjectStatus(ProjectStatus status) {
+        this.projectStatus = status;
     }
 
     public List<User> getEmployees() {

@@ -98,23 +98,31 @@ public class HolidayService {
     }
 
 
-    public Holiday updateHolidayStatus(Long id, HolidayStatus status) {
+    public String updateHolidayStatus(Long id, HolidayStatus status) {
         Holiday holiday = holidayRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Holiday not found with id: " + id));
 
         User user = holiday.getUser();
-        if (status == HolidayStatus.ACCEPTED) {
-            int number=user.getLeave_balance() - holiday.getDuration();
-           user.setLeave_balance(number);
-            userRepo.save(user);
+        System.out.println(status);
+        if (status == HolidayStatus.ACCEPTED ) {
+            int balance = user.getLeave_balance();
+            int duration = holiday.getDuration();
+
+            if (balance >= duration && balance > 0) {
+                user.setLeave_balance(balance - duration);
+                userRepo.save(user);
+            } else {
+                return "Insufficient leave balance. Holiday cannot be accepted.";
+            }
+
         } else if (status == HolidayStatus.CANCELLED) {
             user.setLeave_balance(user.getLeave_balance());
             userRepo.save(user);
+
         }
 
         holiday.setStatus(status);
         Holiday updatedHoliday = holidayRepository.save(holiday);
-
         String subject = "Your Holiday Request Update";
         String message = "Dear " + user.getUsername() + ",\n\n"
                 + "Here is the status of your holiday request:\n"
@@ -138,7 +146,7 @@ public class HolidayService {
 //        if (user.getTelNumber() != null) {
 //            smsService.sendSms(user.getTelNumber(), smsMessage);
 //        }
-        return updatedHoliday;
+        return "updated";
     }
 
     public List<Holiday> getHolidaysByEmpUsername(String username) {

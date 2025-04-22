@@ -141,7 +141,10 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Unexpected error occurred");
         }
     }
-
+    @PostMapping("/users/change-password")
+    public void changePassword(@RequestBody ChangePasswordRequest  user) {
+         userService.changePassword(user);
+    }
 
     @GetMapping("/users/profileImage/{filename}")
     public ResponseEntity<Resource> getImage(@PathVariable String filename) {

@@ -129,7 +129,9 @@ public class UserServiceImp implements UserService, UserDetailsService {
 
             Set<Role> userRoles = new HashSet<>();
             for (Role roleRequest : user.getRoles()) {
+                System.out.println(user.getRoles().size());
                 Role role = roleRepository.findByName(roleRequest.getName());
+                System.out.println(role);
                 if (role != null) {
                     userRoles.add(role);
                 } else {
@@ -140,7 +142,6 @@ public class UserServiceImp implements UserService, UserDetailsService {
             existingUser.setRoles(userRoles);
             existingUser.setFullname(user.getFullname());
             existingUser.setAddress(user.getAddress());
-            //existingUser.setGender(user.getGender() != null ? user.getGender() : existingUser.getGender());
             existingUser.setPosition(user.getPosition() );
             existingUser.setTelNumber(user.getTelNumber());
             return userRepository.save(existingUser);

@@ -3,8 +3,11 @@ package pfe.HumanIQ.HumanIQ.controllers.rh;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pfe.HumanIQ.HumanIQ.models.Contract;
+import pfe.HumanIQ.HumanIQ.models.ContractType;
+import pfe.HumanIQ.HumanIQ.models.HolidayType;
 import pfe.HumanIQ.HumanIQ.services.contractService.ContractService;
 
+import java.util.Arrays;
 import java.util.List;
 @RestController
 @RequestMapping("/api/rh")
@@ -67,6 +70,10 @@ public class ContractController {
         contractService.restoreContrat(id);
         return ResponseEntity.ok().build();
     }
-
-
+    @GetMapping("/Contractstypes")
+    public List<String> getContractsTypes() {
+        return Arrays.stream(ContractType.values())
+                .map(Enum::name)
+                .toList();
+    }
 }

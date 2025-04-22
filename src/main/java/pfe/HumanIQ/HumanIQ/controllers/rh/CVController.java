@@ -19,10 +19,10 @@ public class CVController {
         this.cvService = cvService;
     }
 
-    @PostMapping("/job-offer/{jobOfferId}")
-    public ResponseEntity<CV> uploadCV(@PathVariable Long jobOfferId,
+    @PostMapping("/uploadCV")
+    public ResponseEntity<CV> uploadCV(
                                        @RequestParam("file") MultipartFile fileName) {
-        return ResponseEntity.ok(cvService.uploadCV(jobOfferId, fileName));
+        return ResponseEntity.ok(cvService.uploadCV(fileName));
     }
 
     @GetMapping("/{cvId}/download")
@@ -33,4 +33,10 @@ public class CVController {
                         "attachment; filename=\"" + resource.getFilename() + "\"")
                 .body(resource);
     }
+    @GetMapping("/job-offer/cvs")
+    public ResponseEntity<List<CV>> getCVsByJobOffer() {
+        return ResponseEntity.ok(cvService.getCVsByJobOffer());
+    }
+
+
 }

@@ -16,7 +16,6 @@ import pfe.HumanIQ.HumanIQ.services.serviceUser.UserService;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.Instant;
@@ -127,12 +126,12 @@ public class HolidayController {
 
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<Holiday> updateHolidayStatus(
+    public String updateHolidayStatus(
             @PathVariable Long id,
             @RequestParam HolidayStatus status) {
 
-        Holiday updatedHoliday = holidayService.updateHolidayStatus(id, status);
-             return ResponseEntity.ok(updatedHoliday);
+        return  holidayService.updateHolidayStatus(id, status);
+
     }
 
     @GetMapping("/username/{username}")
