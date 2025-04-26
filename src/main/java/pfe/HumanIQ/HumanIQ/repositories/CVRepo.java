@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface CVRepo extends JpaRepository<CV, Long> {
 
-    List<CV> findByJobOfferId(Long jobOfferId);
+    //List<CV> findByJobOfferId(Long jobOfferId);
 }
 

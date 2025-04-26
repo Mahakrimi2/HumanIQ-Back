@@ -3,11 +3,13 @@ package pfe.HumanIQ.HumanIQ;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
 import pfe.HumanIQ.HumanIQ.models.Department;
 import pfe.HumanIQ.HumanIQ.models.Role;
 import pfe.HumanIQ.HumanIQ.models.User;
@@ -68,6 +70,12 @@ public class HumanIqApplication implements CommandLineRunner {
 		} else {
 			System.out.println("Admin user already exists.");
 		}
+	}
+
+
+	@Bean
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
 	}
 	}
 

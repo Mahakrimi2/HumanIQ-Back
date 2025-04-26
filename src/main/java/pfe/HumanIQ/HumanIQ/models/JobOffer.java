@@ -28,8 +28,6 @@ public class JobOffer {
     private String skillsRequired;
     private String responsibilities;
     private String benefits;
-    @OneToMany(mappedBy = "jobOffer", cascade = CascadeType.ALL)
-    private List<CV> cvs;
 
     public Long getId() {
         return id;
@@ -135,11 +133,5 @@ public class JobOffer {
         this.benefits = benefits;
     }
 
-    public List<CV> getCvs() {
-        return cvs;
-    }
 
-    public void setCvs(List<CV> cvs) {
-        this.cvs = cvs;
-    }
 }

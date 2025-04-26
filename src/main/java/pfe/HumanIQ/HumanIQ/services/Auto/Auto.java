@@ -59,7 +59,7 @@ public class Auto {
         this.payslipRepository = payslipRepository;
     }
 
-    @Scheduled(cron = "0 * * * * ?")
+   // @Scheduled(cron = "0 * * * * ?")
     public void generateMonthlyPayslips() {
         Role role = roleRepository.findByName(UserRole.ROLE_EMPLOYEE);
         List<User> users = userRepo.findByRoles(role);

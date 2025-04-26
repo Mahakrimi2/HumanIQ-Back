@@ -1,26 +1,16 @@
-package pfe.HumanIQ.HumanIQ.models;
+package pfe.HumanIQ.HumanIQ.DTO.CV;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Data
-@Entity
-@AllArgsConstructor
-@NoArgsConstructor
-public class CV {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-
-private Long id;
+public class ParsedCVDto {
     private String fileName;
     private String name;
     private String email;
     private String mobile;
-    @Column(columnDefinition = "TEXT")
-    private String skills;
+    private List<String> skills;
 
     public String getFileName() {
         return fileName;
@@ -54,11 +44,11 @@ private Long id;
         this.mobile = mobile;
     }
 
-    public String getSkills() {
+    public List<String> getSkills() {
         return skills;
     }
 
-    public void setSkills(String skills) {
+    public void setSkills(List<String> skills) {
         this.skills = skills;
     }
 }

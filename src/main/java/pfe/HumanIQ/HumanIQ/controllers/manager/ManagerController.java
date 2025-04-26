@@ -70,6 +70,14 @@ public class ManagerController {
     }
 
 
+    @PutMapping("/{projectId}/add-employee")
+    public ResponseEntity<Project> addEmployeeToProject(
+            @PathVariable Long projectId,
+            @RequestParam Long employeeId) {
+
+        Project updatedProject = projectService.addEmployeeToProject(projectId, employeeId);
+        return ResponseEntity.ok(updatedProject);
+    }
 
 
 

@@ -45,7 +45,7 @@ public class JobOfferService {
         existingJobOffer.setSkillsRequired(jobOfferDetails.getSkillsRequired());
         existingJobOffer.setResponsibilities(jobOfferDetails.getResponsibilities());
         existingJobOffer.setBenefits(jobOfferDetails.getBenefits());
-    return jobOfferRepository.save(existingJobOffer);
+        return jobOfferRepository.save(existingJobOffer);
     }
 
 

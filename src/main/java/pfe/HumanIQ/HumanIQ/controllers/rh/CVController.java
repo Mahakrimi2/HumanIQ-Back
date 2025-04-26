@@ -19,9 +19,8 @@ public class CVController {
         this.cvService = cvService;
     }
 
-    @PostMapping("/uploadCV")
-    public ResponseEntity<CV> uploadCV(
-                                       @RequestParam("file") MultipartFile fileName) {
+    @PostMapping("/job-offer/{jobOfferId}")
+    public ResponseEntity<CV> uploadCV(@RequestParam("file") MultipartFile fileName) {
         return ResponseEntity.ok(cvService.uploadCV(fileName));
     }
 
@@ -33,10 +32,21 @@ public class CVController {
                         "attachment; filename=\"" + resource.getFilename() + "\"")
                 .body(resource);
     }
-    @GetMapping("/job-offer/cvs")
-    public ResponseEntity<List<CV>> getCVsByJobOffer() {
-        return ResponseEntity.ok(cvService.getCVsByJobOffer());
+
+    @PostMapping("/upload")
+    public ResponseEntity<CV> uploadCVV(@RequestParam("file") MultipartFile file) {
+        CV savedCV = cvService.uploadCV(file);
+        return ResponseEntity.ok(savedCV);
     }
 
+    @GetMapping("/load-resumes")
+    public ResponseEntity<List<CV>> loadResumes() {
+        List cvs = cvService.loadCVs();
+        return ResponseEntity.ok(cvs);
+    }
 
+    @DeleteMapping("/delete-cv/{cvId}")
+    public void deleteCV(@PathVariable("cvId") Long cvId) {
+        cvService.deleteCV(cvId);
+    }
 }

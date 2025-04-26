@@ -34,36 +34,37 @@ public class CVService {
 
     public CV uploadCV(MultipartFile file) {
         try {
-//            JobOffer jobOffer = jobOfferRepository.findById(jobOfferId)
-//                    .orElseThrow(() -> new ResourceNotFoundException("Offre non trouvée"));
+            // Vérifie si le fichier est vide
+            if (file.isEmpty()) {
+                throw new IllegalArgumentException("Le fichier est vide");
+            }
 
-
-
+            // Nom original du fichier
             String originalFilename = file.getOriginalFilename();
-            if (originalFilename == null) throw new IllegalArgumentException("Nom invalide");
+            if (originalFilename == null) {
+                throw new IllegalArgumentException("Nom de fichier invalide");
+            }
 
-
+            // Créer le dossier s'il n'existe pas
             Path uploadPath = Paths.get(UPLOAD_DIR);
             if (!Files.exists(uploadPath)) {
                 Files.createDirectories(uploadPath);
             }
 
+            // Génère un nom unique
+            String extension = originalFilename.substring(originalFilename.lastIndexOf('.'));
+            String uniqueFileName = "cv_" + System.currentTimeMillis() + extension;
 
-            String fileExtension = originalFilename.substring(originalFilename.lastIndexOf('.'));
-            String uniqueFileName = "cv_" + System.currentTimeMillis() + "_" + UUID.randomUUID() + fileExtension;
+            // Sauvegarde le fichier
+            Files.copy(file.getInputStream(), uploadPath.resolve(uniqueFileName), StandardCopyOption.REPLACE_EXISTING);
 
-
-            Files.copy(file.getInputStream(), uploadPath.resolve(uniqueFileName),
-                    StandardCopyOption.REPLACE_EXISTING);
-
-
+            // Crée et retourne l'objet CV
             CV cv = new CV();
             cv.setFileName(uniqueFileName);
-//            cv.setJobOffer(jobOffer);
 
             return cvRepository.save(cv);
         } catch (IOException e) {
-            throw new RuntimeException("Erreur fichier", e);
+            throw new RuntimeException("Erreur lors de l'upload du fichier", e);
         }
     }
 
@@ -82,9 +83,16 @@ public class CVService {
             throw new RuntimeException("Erreur chemin fichier", e);
         }
     }
-    public List<CV> getCVsByJobOffer() {
+
+    public List<CV> loadCVs() {
         return cvRepository.findAll();
+    }
+
+    public void deleteCV(Long cvId) {
+        cvRepository.deleteById(cvId);
     }
 
 
 }
+
+

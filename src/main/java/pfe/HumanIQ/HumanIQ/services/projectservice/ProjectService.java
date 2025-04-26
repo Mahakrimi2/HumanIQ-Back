@@ -88,4 +88,19 @@ public class ProjectService {
         // Récupérer les projets assignés à cet utilisateur
         return projectRepository.findByEmployees_Id(employee.getId());
     }
+
+    public Project addEmployeeToProject(Long projectId, Long employeeId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("Project not found"));
+
+        User employee = userRepo.findById(employeeId)
+                .orElseThrow(() -> new RuntimeException("Employee not found"));
+
+        if (!project.getEmployees().contains(employee)) {
+            project.getEmployees().add(employee);
+        }
+
+        return projectRepository.save(project);
+    }
+
 }
