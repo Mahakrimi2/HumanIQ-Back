@@ -38,22 +38,8 @@ public class User implements UserDetails {
     private String telNumber;
     private LocalDate hireDate;
     private String profileImagePath;
-
     private boolean active = true;
-
     private Integer leave_balance=15;
-
-
-    /*
-        @CreatedDate
-        @Column(nullable = false, updatable = false)
-        @Temporal(TemporalType.TIMESTAMP)
-        @CreationTimestamp
-        private LocalDateTime createdDate;
-        @LastModifiedDate
-        @Column(insertable = false,nullable = true)
-        private LocalDateTime modifiedDate;
-    */
     @Column(unique = true)
     private String email;
     private String password;
@@ -65,11 +51,9 @@ public class User implements UserDetails {
     )
     private Set<Role> roles = new HashSet<>();
 
-
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Token> tokens;
-
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     @JsonIgnore
@@ -94,6 +78,24 @@ public class User implements UserDetails {
     @JsonIgnore
     @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Message> receivers;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Payslip> payslips;
+
+    @ManyToMany(mappedBy = "employees",fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Project> projects;
+    @OneToMany(mappedBy = "recipient", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Notification> notifications = new ArrayList<>();
+
+    @PrePersist
+    public void prePersist() {
+        if (leave_balance == null) {
+            leave_balance = 15;
+        }
+    }
     public List<Department> getDepartments() {
         return departments;
     }
@@ -120,18 +122,6 @@ public class User implements UserDetails {
         this.department = department;
         return this;
     }
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private List<Payslip> payslips;
-
-    @ManyToMany(mappedBy = "employees",fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<Project> projects;
-//    @OneToMany(mappedBy = "approvedBy", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-//    @JsonIgnore
-//    private List<Holiday> approvedHolidays;
-
     public List<Holiday> getHolidays() {
         return holidays;
     }
@@ -213,12 +203,7 @@ public class User implements UserDetails {
     public void setLoginDisabled(Boolean isDisabled) {
         this.isDisabled = isDisabled;
     }
-    @PrePersist
-    public void prePersist() {
-        if (leave_balance == null) {
-            leave_balance = 15;
-        }
-    }
+
     public Integer getLeave_balance() {
         return leave_balance;
     }

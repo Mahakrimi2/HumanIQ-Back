@@ -12,7 +12,8 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     List<Project> findByProjectStatus(ProjectStatus status);
     List<Project> findByEmployees_Id(Long employeeId);
     List<Project> findByPriority(PriorityName priorityName);
-    List<Project> findByProjectManagerId(Long projectManagerId);
+    List<Project> findByEmployeesContaining(User user);
+    List<Project> findByProjectManager(User projectManager);
 
 
 }

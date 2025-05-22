@@ -22,4 +22,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             @Param("type") EventType type,
             @Param("startDate") LocalDateTime startDate);
 
+
+
 }

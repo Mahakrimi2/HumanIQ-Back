@@ -1,5 +1,6 @@
 package pfe.HumanIQ.HumanIQ.services.serviceUser;
 
+import jakarta.transaction.Transactional;
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -79,7 +80,6 @@ public class UserServiceImp implements UserService, UserDetailsService {
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
             throw new RuntimeException("username already exists");
         }
-
         Department department = departmentRepository.findById(id).orElse(null);
         if (department == null) {
             return null;
@@ -98,8 +98,6 @@ public class UserServiceImp implements UserService, UserDetailsService {
                 throw new RuntimeException("Role not found: " + roleRequest.getName());
             }
         }
-
-
         User newUser = new User();
         newUser.setUsername(user.getUsername());
         newUser.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -116,17 +114,12 @@ public class UserServiceImp implements UserService, UserDetailsService {
         return userRepository.save(newUser);
     }
 
-
-
-
     @Override
     public User updateUser(User user,Long id) {
         User existingUser = findUserById(id);
         if(existingUser != null){
             Optional<User> userWithEmail = userRepository.findByUsername(user.getUsername());
             existingUser.setUsername(user.getUsername());
-            // Mise à jour des rôles
-
             Set<Role> userRoles = new HashSet<>();
             for (Role roleRequest : user.getRoles()) {
                 System.out.println(user.getRoles().size());
@@ -161,21 +154,49 @@ public class UserServiceImp implements UserService, UserDetailsService {
     }
 
 
-    @Override
-    public void deleteUser(Long id) {
-       User user = userRepository.findById(id).orElse(null);
-       if (user == null) {
-           throw new RuntimeException("user does not exist");
-       }
-        List<Project> projects = projectRepository.findByProjectManagerId(id);
-        for (Project p : projects) {
-            p.setProjectManager(null);
-        }
-        projectRepository.saveAll(projects);
-        userRepository.delete(user);
+//    @Override
+//    public void deleteUser(Long id) {
+//       User user = userRepository.findById(id).orElse(null);
+//       if (user == null) {
+//           throw new RuntimeException("user does not exist");
+//       }
+//        List<Project> projects = projectRepository.findByProjectManagerId(id);
+//        for (Project p : projects) {
+//            p.setProjectManager(null);
+//        }
+//        projectRepository.saveAll(projects);
+//        userRepository.delete(user);
+//
+//    }
+@Override
+@Transactional
+public void deleteUser(Long id) {
+    User user = userRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("User does not exist"));
 
+    // 1. Retirer l'utilisateur des projets où il est employé (table project_employee)
+    List<Project> employeeProjects = projectRepository.findByEmployeesContaining(user);
+    for (Project p : employeeProjects) {
+        p.getEmployees().remove(user);
     }
+    projectRepository.saveAll(employeeProjects);
 
+    // 2. Retirer l'utilisateur comme manager des projets
+    List<Project> managedProjects = projectRepository.findByProjectManager(user);
+    for (Project p : managedProjects) {
+        p.setProjectManager(null);
+    }
+    projectRepository.saveAll(managedProjects);
+
+    // 3. Supprimer les tokens de l'utilisateur
+    tokenRepository.deleteByUser(user);
+
+    // 4. Supprimer les rôles de l'utilisateur
+    user.getRoles().clear();
+
+    // 5. Finalement supprimer l'utilisateur
+    userRepository.delete(user);
+}
     public void enableUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -194,8 +215,6 @@ public class UserServiceImp implements UserService, UserDetailsService {
     }
 
 
-
-
     @Override
     public User findUserById(Long id) {
         return userRepository.findById(id).orElse(null);
@@ -212,24 +231,7 @@ public class UserServiceImp implements UserService, UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
     }
 
-
-    public Token createVerificationToken(User user) {
-        String token = UUID.randomUUID().toString();
-        LocalDateTime createdAt = LocalDateTime.now();
-        LocalDateTime expiresAt = createdAt.plusHours(24); // Token valid for 24 hours
-
-        Token verificationToken = new Token();
-        verificationToken.setUser(user);
-        verificationToken.setToken(token);
-        verificationToken.setCreatedAt(createdAt);
-        verificationToken.setExpiresAt(expiresAt);
-        verificationToken.setValidatedAt(null); // Token is not validated yet
-
-        tokenRepository.save(verificationToken);
-        return verificationToken;
-    }
     private User getCurrentUser() {
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
 

@@ -21,7 +21,6 @@ public class CompanyService {
             Company newCompany = companyRepository.save(company);
             return newCompany;
         } catch (Exception e) {
-            // You can log the error if needed or throw a custom exception
             throw new RuntimeException("Error while saving company", e);
         }
     }
@@ -43,8 +42,6 @@ public class CompanyService {
 
         return companyRepository.save(existingCompany);
     }
-
-    // Récupérer l'entreprise
     public Optional<Company> getCompany() {
         return companyRepository.findById(1L);
     }

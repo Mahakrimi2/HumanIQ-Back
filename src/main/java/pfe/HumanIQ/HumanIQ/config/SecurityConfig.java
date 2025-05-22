@@ -42,10 +42,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**","/api/rh/users/profileImage/**").permitAll()
                         .requestMatchers("api/password/**").permitAll()
                         .requestMatchers("/api/rh/**").hasAnyRole("RH","MANAGER","SUPERADMIN")
-                        .requestMatchers("/api/holiday/**","/api/pdf/**").hasAnyRole("EMPLOYEE","RH","SUPERADMIN")
+                        .requestMatchers("/api/holiday/**","/api/pdf/**").hasAnyRole("EMPLOYEE","RH","SUPERADMIN","MANAGER")
                         .requestMatchers("/api/admin/**","/api/test/private").hasRole("ADMIN")
                         .requestMatchers("/api/employee/**").hasRole("EMPLOYEE")
-
+                        .requestMatchers("api/notifications/**").hasAnyRole("MANAGER","EMPLOYEE","RH","SUPERADMIN")
                         .requestMatchers("/api/events/**").permitAll()
                         .requestMatchers("/api/pointages/**","/api/users/**","/message/**","/api/chatroom/**"
                         ,"/app/**","/topic/**","/ws/**"

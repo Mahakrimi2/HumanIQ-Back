@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import pfe.HumanIQ.HumanIQ.models.Event;
 import pfe.HumanIQ.HumanIQ.models.User;
 import pfe.HumanIQ.HumanIQ.repositories.EventRepository;
+import pfe.HumanIQ.HumanIQ.repositories.NotificationRepository;
+import pfe.HumanIQ.HumanIQ.repositories.UserRepo;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,13 +15,30 @@ import java.util.List;
 public class EventService {
     private final EventRepository eventRepository;
 
-    public EventService(EventRepository eventRepository) {
+    private final NotificationService notificationService;
+    private final UserRepo userRepo;
+    private final NotificationRepository notificationRepository;
+
+    public EventService(EventRepository eventRepository, NotificationService notificationService, UserRepo userRepo, NotificationRepository notificationRepository) {
         this.eventRepository = eventRepository;
+        this.notificationService = notificationService;
+        this.userRepo = userRepo;
+        this.notificationRepository = notificationRepository;
     }
 
     public Event createEvent(Event event, User creator) {
         event.setCreator(creator);
-        return eventRepository.save(event);
+        Event savedEvent = eventRepository.save(event);
+        // DEBUG: Comptez les utilisateurs à notifier
+        List<User> users = userRepo.findAll();
+        System.out.println("Total users: " + users.size());
+        // Envoyer les notifications
+        notificationService.notifyUsersAboutNewEvent(savedEvent);
+
+        long notificationCount = notificationRepository.count();
+        System.out.println("Total notifications after creation: " + notificationCount);
+
+        return savedEvent;
     }
 
     public Event updateEvent(Long id, Event eventDetails) {

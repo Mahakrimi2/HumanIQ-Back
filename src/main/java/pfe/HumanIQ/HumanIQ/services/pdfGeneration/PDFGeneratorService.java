@@ -66,6 +66,7 @@ public class PDFGeneratorService {
             PdfDocument pdfDocument = new PdfDocument(writer);
             Document document = new Document(pdfDocument);
 
+            document.setMargins(50, 50, 50, 50);
             // Header
             Table headerTable = new Table(2).useAllAvailableWidth();
             headerTable.addCell(new Cell().add(new Paragraph("Resco Development LLC").setFontSize(16).setBold()).setBorder(Border.NO_BORDER));
@@ -94,7 +95,6 @@ public class PDFGeneratorService {
             document.add(new Paragraph("2. CONTRACT DETAILS").setBold().setFontSize(14));
             Table contractTable = new Table(UnitValue.createPercentArray(new float[]{30, 70})).useAllAvailableWidth();
 
-
             addStyledCell(contractTable, "Contract Type", contract.getContractType().toString());
             addStyledCell(contractTable, "Start Date", contract.getStartDate().toString());
             addStyledCell(contractTable, "End Date", contract.getEndDate().toString());
@@ -102,8 +102,15 @@ public class PDFGeneratorService {
                     "\nMonday-Friday: 09:00-12:30 / 14:00-18:00");
             addStyledCell(contractTable, "Monthly Gross Salary", contract.getSalary().toString() + " TND" +
                     "\nPayment on the 5th of each month by bank transfer");
-            addStyledCell(contractTable, "Benefits", contract.getBenefits() +
-                    "\n- Health insurance\n- Meal vouchers\n- 50% transportation coverage");
+
+            // Gestion flexible de la description
+            addFlexibleTextCell(contractTable, "Description", contract.getDescription(), document);
+
+            // Gestion flexible des benefits
+            String benefitsText = contract.getBenefits() +
+                    "\n- Health insurance\n- Meal vouchers\n- 50% transportation coverage";
+            addFlexibleTextCell(contractTable, "Benefits", benefitsText, document);
+
             document.add(contractTable);
             document.add(new Paragraph("\n"));
 
@@ -191,5 +198,33 @@ public class PDFGeneratorService {
         table.addCell(new Cell().add(new Paragraph(header)).setBold().setBackgroundColor(ColorConstants.LIGHT_GRAY));
         table.addCell(new Cell().add(new Paragraph(value)));
     }
+
+    private void addFlexibleTextCell(Table table, String header, String content, Document document) {
+        // Cellule pour le header
+        table.addCell(new Cell().add(new Paragraph(header)).setBold().setBackgroundColor(ColorConstants.LIGHT_GRAY));
+
+        // Estimation de la longueur du texte (environ 100 caractères par ligne)
+        if (content != null && content.length() > 300) {
+            // Si le texte est long, on crée une cellule avec un paragraphe qui s'étendra sur plusieurs pages
+            Cell contentCell = new Cell();
+            contentCell.setKeepTogether(true); // Essaye de garder le contenu ensemble si possible
+
+            // Découpage en paragraphes si le texte contient des sauts de ligne
+            if (content.contains("\n")) {
+                String[] paragraphs = content.split("\n");
+                for (String para : paragraphs) {
+                    contentCell.add(new Paragraph(para).setMarginBottom(5));
+                }
+            } else {
+                contentCell.add(new Paragraph(content));
+            }
+
+            table.addCell(contentCell);
+        } else {
+            // Texte court - traitement normal
+            table.addCell(new Cell().add(new Paragraph(content != null ? content : "N/A")));
+        }
+    }
+
 
 }

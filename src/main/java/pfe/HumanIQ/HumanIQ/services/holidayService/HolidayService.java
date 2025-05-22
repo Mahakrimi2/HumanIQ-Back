@@ -12,6 +12,7 @@ import pfe.HumanIQ.HumanIQ.models.HolidayStatus;
 import pfe.HumanIQ.HumanIQ.models.User;
 import pfe.HumanIQ.HumanIQ.repositories.HolidayRepository;
 import pfe.HumanIQ.HumanIQ.repositories.UserRepo;
+import pfe.HumanIQ.HumanIQ.services.NotificationService;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,6 +31,9 @@ public class HolidayService {
 
     private EmailService emailService;
 
+    @Autowired
+    private NotificationService notificationService;
+
 
 
     @Value("${file.upload-dir}")
@@ -39,7 +43,9 @@ public class HolidayService {
 
     public Holiday createHolidayRequest(Holiday holiday) throws IOException {
         holiday.setStatus(HolidayStatus.PENDING);
-        return holidayRepository.save(holiday);
+        Holiday savedHoliday = holidayRepository.save(holiday);
+        notificationService.notifyAboutHolidayRequest(savedHoliday);
+        return savedHoliday;
     }
 
 //    public Holiday approveHoliday(Long id, String approvedBy) {
@@ -124,22 +130,80 @@ public class HolidayService {
         holiday.setStatus(status);
         Holiday updatedHoliday = holidayRepository.save(holiday);
         String subject = "Your Holiday Request Update";
-        String message = "Dear " + user.getUsername() + ",\n\n"
-                + "Here is the status of your holiday request:\n"
-                + "📅 Created At: " + updatedHoliday.getCreatedAt() + "\n"
-                + "📌 Status: " + updatedHoliday.getStatus() + "\n\n";
+        // Message HTML avec style moderne
+        String htmlMessage = """
+    <html>
+        <head>
+            <style>
+                body { font-family: 'Arial', sans-serif; line-height: 1.6; color: #333; }
+                .container { max-width: 600px; margin: 20px auto; padding: 20px; }
+                .header { color: #2c3e50; border-bottom: 2px solid #f39c12; padding-bottom: 10px; }
+                .status-accepted { color: #27ae60; font-weight: bold; }
+                .status-rejected { color: #e74c3c; font-weight: bold; }
+                .status-pending { color: #f39c12; font-weight: bold; }
+                .details { background: #f9f9f9; padding: 15px; border-radius: 5px; margin: 15px 0; }
+                .footer { margin-top: 20px; font-size: 0.9em; color: #7f8c8d; }
+                .emoji { font-size: 1.2em; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h2>Holiday Request Update</h2>
+                </div>
+                <p>Dear %s,</p>
+                
+                <p>Here is the status of your holiday request:</p>
+                
+                <div class="details">
+                    <p><span class="emoji">📅</span> <strong>Created At:</strong> %s</p>
+                    <p><span class="emoji">📌</span> <strong>Status:</strong> <span class="status-%s">%s</span></p>
+                    <p><span class="emoji">⏱️</span> <strong>Duration:</strong> %s days</p>
+                </div>
+    """.formatted(
+                user.getFullname(),
+                updatedHoliday.getCreatedAt(),
+                status.name().toLowerCase(),
+                status.name(),
+                updatedHoliday.getDuration()
+        );
 
+        // Ajout du message spécifique au statut
         if (status == HolidayStatus.ACCEPTED) {
-            message += "✅ Your holiday request has been *ACCEPTED* for " + updatedHoliday.getDuration() + " days.\n";
-        } else if (status == HolidayStatus.CANCELLED) {
-            message += "❌ Your holiday request has been *CANCELLED* and your leave balance has been restored.\n";
+            htmlMessage += """
+        <div style="background: #e8f5e9; padding: 10px; border-radius: 5px; margin: 15px 0;">
+            <p><span class="emoji">✅</span> Your holiday request has been <strong>ACCEPTED</strong>.</p>
+            <p>Enjoy your time off!</p>
+        </div>
+        """;
+        }  else if (status == HolidayStatus.CANCELLED) {
+            htmlMessage += """
+        <div style="background: #fff8e1; padding: 10px; border-radius: 5px; margin: 15px 0;">
+            <p><span class="emoji">🔄</span> Your holiday request has been <strong>CANCELLED</strong>.</p>
+            <p>Your leave balance has been restored.</p>
+        </div>
+        """;
         }
+
+// Footer du message
+        htmlMessage += """
+        <div class="footer">
+            <p>Best regards,</p>
+            <p><strong>HR Department</strong></p>
+            <p>STE Resco Devloppment</p>
+        </div>
+    </div>
+    </body>
+    </html>
+    """;
 
         EmailDetails details = new EmailDetails();
         details.setRecipient(user.getUsername());
         details.setSubject(subject);
-        details.setMsgBody(message);
+        details.setMsgBody(htmlMessage);
+
         emailService.sendSimpleMail(details);
+
 
         String smsMessage = "Hello " + user.getUsername() + ", your holiday request has been " + updatedHoliday.getStatus() + ".";
 

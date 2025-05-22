@@ -7,6 +7,7 @@ import pfe.HumanIQ.HumanIQ.models.Contract;
 import pfe.HumanIQ.HumanIQ.models.Holiday;
 import pfe.HumanIQ.HumanIQ.models.User;
 
+import java.time.LocalDate;
 import java.time.YearMonth;
 import java.util.List;
 
@@ -24,4 +25,5 @@ public interface HolidayRepository extends JpaRepository<Holiday, Long> {
     @Query("SELECT h.duration FROM Holiday h WHERE h.user.id = :userId AND h.status = 'ACCEPTED' AND h.type = 'ANNUAL' AND FUNCTION('MONTH', h.startDate) = :month AND FUNCTION('YEAR', h.startDate) = :year")
     int getHolidayByTypeAndUser(@Param("userId") Long userId, @Param("month") int month, @Param("year") int year);
 
+    List<Holiday> findByUserAndStartDateBetween(User user, LocalDate startDate, LocalDate endDate);
 }

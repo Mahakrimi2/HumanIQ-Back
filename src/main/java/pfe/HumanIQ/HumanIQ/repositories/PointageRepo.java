@@ -26,4 +26,5 @@ public interface PointageRepo extends JpaRepository<Pointage, Long> {
 
     Optional<Pointage> findByUserUsernameAndDate(String username, LocalDate date);
 
+    List<Pointage> findByUserAndDateBetween(User user, LocalDate startDate, LocalDate endDate);
 }

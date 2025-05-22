@@ -22,14 +22,8 @@ public interface UserRepo extends JpaRepository<User,Long>{
 
     @Query("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.roles")
     List<User> findAllWithRoles();
-
-
-
-
-
     @Query("SELECT r.name, COUNT(u) FROM User u JOIN u.roles r GROUP BY r.name")
     List<Object[]> countUsersByRole();
-
     List<User> findByDepartment(DepartmentName departmentName);
     @Modifying
     @Query("UPDATE User u SET u.department = NULL WHERE u.department.id = :departmentId")

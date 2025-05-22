@@ -206,8 +206,6 @@ public class UsersController {
             String token = tokenValidationService.createVerificationToken(user.getUsername());
             String subject = "Your HumanIQ Account Details";
             String loginUrl = "https://localhost:4200/login";
-
-            // Email HTML Template
             String message = "<!DOCTYPE html>"
                     + "<html>"
                     + "<head>"
@@ -254,45 +252,13 @@ public class UsersController {
             details.setRecipient(createdUser.getUsername());
             details.setSubject(subject);
             details.setMsgBody(message);
-
             emailService.sendSimpleMail(details);
-
             return ResponseEntity.status(HttpStatus.CREATED).body("User created. Please check your email to activate your account.");
         } catch (Exception e) {
             System.err.println("User registration failed: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User creation failed: " + e.getMessage());
         }
     }
-//    public ResponseEntity<?> register(@RequestBody User user,@RequestParam Long id) {
-//        try {
-//            System.out.println("Registering new user with username: " + user.getUsername());
-//
-//
-//
-//            User createdUser = userService.createEmployee(user,id);
-//            String token = tokenValidationService.createVerificationToken(user.getUsername());
-//            String subject = "Your Login Details";
-//            String loginUrl = "http://localhost:4300/login";
-//            String message = "Welcome to our HumanIQ system!\n\n"
-//                    + "Here are your login details:\n"
-//                    + "Email: " + createdUser.getUsername() + "\n"
-//                    + "Password: " + user.getPassword() + "\n\n"
-//                    + "Click the link below to log in:\n"
-//                    + loginUrl;
-//
-//            EmailDetails details = new EmailDetails();
-//            details.setRecipient(createdUser.getUsername());
-//            details.setSubject(subject);
-//            details.setMsgBody(message);
-//
-//            emailService.sendSimpleMail(details);
-//
-//            return ResponseEntity.status(HttpStatus.CREATED).body("User created. Please check your email to activate your account.");
-//        } catch (Exception e) {
-//            System.err.println("User registration failed: " + e.getMessage());
-//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User creation failed: " + e.getMessage());
-//        }
-//    }
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
@@ -309,8 +275,6 @@ public class UsersController {
         User currentUser = getCurrentUser();
         return ResponseEntity.ok(currentUser);
     }
-
-
 
     @PutMapping("/users/profile")
     public ResponseEntity<User> updateCurrentUserProfile(@RequestBody User updatedUser) {
@@ -350,9 +314,7 @@ public class UsersController {
     }
 
     @GetMapping("/roles")
-
     public ResponseEntity<UserRole[]> getAllRoles() {
-        // Retourne directement toutes les valeurs de l'enum
         return ResponseEntity.ok(UserRole.values());
     }
 }

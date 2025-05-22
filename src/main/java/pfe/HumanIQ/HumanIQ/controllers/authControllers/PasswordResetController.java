@@ -34,28 +34,6 @@ public class PasswordResetController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    //Générer un token et envoyer l'email
-
-//    @PostMapping("/forgot")
-//    public ResponseEntity<Map<String, String>> forgotPassword(@RequestBody Map<String, String> request) {
-//        String username = request.get("username");
-//        Optional<User> user = userRepository.findByUsername(username);
-//
-//        if (user.isEmpty()) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-//                    .body(Map.of("message", "Aucun utilisateur trouvé avec cet email."));
-//        }
-//
-//        String token = passwordResetTokenService.createPasswordResetToken(username);
-//        emailService.sendPasswordResetEmail(username, token);
-//
-//        return ResponseEntity.ok(Map.of(
-//                "message", "Un lien de réinitialisation a été envoyé à votre email.",
-//                "status", "SUCCESS"
-//        ));
-//    }
-
-
     @PostMapping("/forgot")
     public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
         String username = request.get("username");

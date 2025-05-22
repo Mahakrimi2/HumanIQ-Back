@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -16,24 +17,11 @@ public class Payslip {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Temporal(TemporalType.DATE)
-    private Date month;
+    private String filename;
 
-    private Float baseSalary;
+    private double salary;
 
-    private Float hoursWorked;
-
-    private Float bonuses;
-
-    private Float overtimeHours;
-
-    private Float deductions;
-
-    private Double netSalary;
-
-    private Float overtimePay;
-
-    private Boolean status;
+    private LocalDate generatedDate;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -43,89 +31,44 @@ public class Payslip {
         return id;
     }
 
-    public void setId(Long id) {
+    public Payslip setId(Long id) {
         this.id = id;
+        return this;
     }
 
-    public Date getMonth() {
-        return month;
+    public String getFilename() {
+        return filename;
     }
 
-    public void setMonth(Date month) {
-        this.month = month;
+    public Payslip setFilename(String filename) {
+        this.filename = filename;
+        return this;
     }
 
-    public Float getBaseSalary() {
-        return baseSalary;
+    public double getSalary() {
+        return salary;
     }
 
-    public void setBaseSalary(Float baseSalary) {
-        this.baseSalary = baseSalary;
+    public Payslip setSalary(double salary) {
+        this.salary = salary;
+        return this;
     }
 
-    public Float getHoursWorked() {
-        return hoursWorked;
+    public LocalDate getGeneratedDate() {
+        return generatedDate;
     }
 
-    public void setHoursWorked(Float hoursWorked) {
-        this.hoursWorked = hoursWorked;
-    }
-
-    public Float getBonuses() {
-        return bonuses;
-    }
-
-    public void setBonuses(Float bonuses) {
-        this.bonuses = bonuses;
-    }
-
-    public Float getOvertimeHours() {
-        return overtimeHours;
-    }
-
-    public void setOvertimeHours(Float overtimeHours) {
-        this.overtimeHours = overtimeHours;
-    }
-
-    public Float getDeductions() {
-        return deductions;
-    }
-
-    public void setDeductions(Float deductions) {
-        this.deductions = deductions;
-    }
-
-    public Double getNetSalary() {
-        return netSalary;
-    }
-
-    public void setNetSalary(Double netSalary) {
-        this.netSalary = netSalary;
-    }
-
-    public Float getOvertimePay() {
-        return overtimePay;
-    }
-
-    public void setOvertimePay(Float overtimePay) {
-        this.overtimePay = overtimePay;
-    }
-
-
-    public Boolean getStatus() {
-        return status;
-    }
-
-    public void setStatus(Boolean status) {
-        this.status = status;
+    public Payslip setGeneratedDate(LocalDate generatedDate) {
+        this.generatedDate = generatedDate;
+        return this;
     }
 
     public User getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public Payslip setUser(User user) {
         this.user = user;
+        return this;
     }
-
 }

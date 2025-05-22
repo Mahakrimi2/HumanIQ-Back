@@ -49,11 +49,6 @@ public class JobOfferService {
     }
 
 
-    public void deactivateJobOffer(Long id) {
-        JobOffer jobOffer = getJobOfferById(id);
-        jobOffer.setActive(false);
-        jobOfferRepository.save(jobOffer);
-    }
 
     public void deleteJobOffer(Long id) {
         jobOfferRepository.deleteById(id);

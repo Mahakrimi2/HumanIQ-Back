@@ -3,6 +3,7 @@ package pfe.HumanIQ.HumanIQ.controllers.rh;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pfe.HumanIQ.HumanIQ.models.Contract;
+import pfe.HumanIQ.HumanIQ.models.ContractStatus;
 import pfe.HumanIQ.HumanIQ.models.ContractType;
 import pfe.HumanIQ.HumanIQ.models.HolidayType;
 import pfe.HumanIQ.HumanIQ.services.contractService.ContractService;
@@ -76,4 +77,16 @@ public class ContractController {
                 .map(Enum::name)
                 .toList();
     }
+
+
+    @GetMapping("/Contractstatus")
+    public List<String> getStatus() {
+        return Arrays.stream(ContractStatus.values())
+                .map(Enum::name)
+                .toList();
+    }
+
+
+
+
 }
