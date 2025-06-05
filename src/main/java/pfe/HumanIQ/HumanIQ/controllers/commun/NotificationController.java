@@ -5,7 +5,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import pfe.HumanIQ.HumanIQ.models.Notification;
 import pfe.HumanIQ.HumanIQ.models.User;
-import pfe.HumanIQ.HumanIQ.services.NotificationService;
+import pfe.HumanIQ.HumanIQ.services.Notifications.NotificationService;
 
 import java.util.List;
 
@@ -37,6 +37,7 @@ public class NotificationController {
     public List<Notification> getUnreadNotifications(@AuthenticationPrincipal User user) {
         return notificationService.getUnreadUserNotifications(user.getId());
     }
+
 
     @PostMapping("/{id}/read")
     public ResponseEntity<?> markAsRead(@PathVariable Long id) {

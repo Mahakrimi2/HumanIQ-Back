@@ -1,4 +1,4 @@
-package pfe.HumanIQ.HumanIQ.services;
+package pfe.HumanIQ.HumanIQ.services.Notifications;
 
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -10,7 +10,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 

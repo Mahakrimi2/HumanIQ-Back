@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pfe.HumanIQ.HumanIQ.models.Event;
 import pfe.HumanIQ.HumanIQ.models.User;
-import pfe.HumanIQ.HumanIQ.services.EventService;
+import pfe.HumanIQ.HumanIQ.services.EventService.EventService;
 
 import java.net.URI;
 import java.time.LocalDateTime;

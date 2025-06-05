@@ -45,7 +45,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/holiday/**","/api/pdf/**").hasAnyRole("EMPLOYEE","RH","SUPERADMIN","MANAGER")
                         .requestMatchers("/api/admin/**","/api/test/private").hasRole("ADMIN")
                         .requestMatchers("/api/employee/**").hasRole("EMPLOYEE")
-                        .requestMatchers("api/notifications/**").hasAnyRole("MANAGER","EMPLOYEE","RH","SUPERADMIN")
+                        .requestMatchers("api/notifications/**").hasAnyRole("MANAGER","EMPLOYEE","RH","SUPERADMIN","ADMIN")
+                        .requestMatchers("api/payslips/**").hasAnyRole("MANAGER","EMPLOYEE","RH","SUPERADMIN","ADMIN")
                         .requestMatchers("/api/events/**").permitAll()
                         .requestMatchers("/api/pointages/**","/api/users/**","/message/**","/api/chatroom/**"
                         ,"/app/**","/topic/**","/ws/**"

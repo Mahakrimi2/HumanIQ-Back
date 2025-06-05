@@ -1,4 +1,4 @@
-package pfe.HumanIQ.HumanIQ.services;
+package pfe.HumanIQ.HumanIQ.services.CompanyService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

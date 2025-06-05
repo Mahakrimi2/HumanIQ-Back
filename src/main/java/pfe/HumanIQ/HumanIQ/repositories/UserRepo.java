@@ -29,4 +29,6 @@ public interface UserRepo extends JpaRepository<User,Long>{
     @Query("UPDATE User u SET u.department = NULL WHERE u.department.id = :departmentId")
     void detachUsersFromDepartment(@Param("departmentId") Long departmentId);
 
+
+
 }

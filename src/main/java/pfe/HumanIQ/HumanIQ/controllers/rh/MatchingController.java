@@ -15,8 +15,7 @@ import pfe.HumanIQ.HumanIQ.models.CV;
 import pfe.HumanIQ.HumanIQ.models.JobOffer;
 import pfe.HumanIQ.HumanIQ.repositories.CVRepo;
 import pfe.HumanIQ.HumanIQ.repositories.JobOfferRepository;
-import pfe.HumanIQ.HumanIQ.services.MatchingService;
-import org.springframework.web.client.RestTemplate;
+import pfe.HumanIQ.HumanIQ.services.JobOffer_CV.MatchingService;
 
 import java.io.IOException;
 import java.util.*;

@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pfe.HumanIQ.HumanIQ.models.Company;
-import pfe.HumanIQ.HumanIQ.services.CompanyService;
+import pfe.HumanIQ.HumanIQ.services.CompanyService.CompanyService;
 @RestController
 @RequestMapping("/api/company")
 public class SuperAdminController {

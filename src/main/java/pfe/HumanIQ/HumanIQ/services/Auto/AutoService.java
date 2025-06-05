@@ -1,5 +1,9 @@
 package pfe.HumanIQ.HumanIQ.services.Auto;
 import com.lowagie.text.*;
+import com.lowagie.text.Font;
+import com.lowagie.text.Rectangle;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -13,6 +17,7 @@ import org.springframework.stereotype.Service;
 import pfe.HumanIQ.HumanIQ.models.*;
 import pfe.HumanIQ.HumanIQ.repositories.*;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -20,8 +25,10 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
+
 
 @Service
 @Slf4j
@@ -44,7 +51,7 @@ public class AutoService {
 
 //    @Scheduled(cron = "0 0 8 1 * *") // Le 1er de chaque mois à 8h
 
-    @Scheduled(cron = "0 * * * * *") // kol de9i9a
+//    @Scheduled(cron = "0 * * * * *") // kol de9i9a
 
     public void sendMonthlyPayslips() {
         List<User> employees = userRepository.findAll();
@@ -52,8 +59,8 @@ public class AutoService {
         for (User user : employees) {
             try {
                 // hnee ki tena7i comment yewali kol ras chehar ye3mil calcul l3adi
-               // double salary = calculateSalary(user, LocalDate.now().minusMonths(1), LocalDate.now().minusDays(1));
-                 // generatePayslipPDF(user, salary, LocalDate.now().minusMonths(1), LocalDate.now().minusDays(1));
+                // double salary = calculateSalary(user, LocalDate.now().minusMonths(1), LocalDate.now().minusDays(1));
+                // generatePayslipPDF(user, salary, LocalDate.now().minusMonths(1), LocalDate.now().minusDays(1));
                 YearMonth lastMonth = YearMonth.now().minusMonths(1);
                 LocalDate startDate = lastMonth.atDay(1); // 2025-04-01
                 LocalDate endDate = lastMonth.atEndOfMonth(); // 2025-04-30
@@ -99,8 +106,8 @@ public class AutoService {
         double workedMinutes = 0;
         for (Pointage pointage : pointages) {
 
-                workedMinutes += Duration.between(pointage.getArrivalTime(), pointage.getDepartureTime()).toMinutes();
-                workedMinutes -= Duration.between(pointage.getPauseStartTime(), pointage.getPauseEndTime()).toMinutes();
+            workedMinutes += Duration.between(pointage.getArrivalTime(), pointage.getDepartureTime()).toMinutes();
+            workedMinutes -= Duration.between(pointage.getPauseStartTime(), pointage.getPauseEndTime()).toMinutes();
 
         }
         double workedHours = workedMinutes / 60.0;
@@ -135,71 +142,181 @@ public class AutoService {
     // Générer la fiche de paie en PDF
     private void generatePayslipPDF(User user, double salary, LocalDate startDate, LocalDate endDate) throws DocumentException, IOException {
         Contract contract = contractRepository.findContractByUser(user);
-        Document document = new Document();
-        File uploadsDir = new File("uploads");
+        if (contract == null) {
+            System.out.println("No contract found for user: {}, skipping PDF generation"+ user.getUsername());
+            throw new IOException("No contract found for user: " + user.getUsername());
+        }
+
+        Document document = new Document(PageSize.A4);
+        File uploadsDir = new File("Uploads");
         if (!uploadsDir.exists()) {
-            uploadsDir.mkdirs();
-        }
-        //PdfWriter.getInstance(document, new FileOutputStream("uploads/" + user.getId() + "_" + startDate.getMonthValue() + ".pdf"));
-        String filePath = "uploads/" +File.separator+ user.getId() + "_" + startDate.getMonthValue() + ".pdf";
-        PdfWriter.getInstance(document, new FileOutputStream(filePath));
-        document.open();
-
-        Font titleFont = new Font(Font.HELVETICA, 18, Font.BOLD);
-        Font subTitleFont = new Font(Font.HELVETICA, 14, Font.BOLD);
-        Font normalFont = new Font(Font.HELVETICA, 12);
-
-        Paragraph title = new Paragraph("Fiche de Paie", titleFont);
-        title.setAlignment(Element.ALIGN_CENTER);
-        document.add(title);
-
-        document.add(new Paragraph(" ", normalFont)); // Espace
-
-        document.add(new Paragraph("Nom & Prénom : " + user.getFullname(), normalFont));
-        document.add(new Paragraph("Mois concerné : " + startDate.getMonth() + " " + startDate.getYear(), normalFont));
-        document.add(new Paragraph("Date de génération : " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), normalFont));
-        document.add(new Paragraph("------------------------------------------------------------"));
-
-        document.add(new Paragraph("Informations salariales :", subTitleFont));
-        document.add(new Paragraph("Salaire de base : " + String.format("%.2f", contract.getSalary()) + " TND", normalFont));
-        document.add(new Paragraph("Salaire net à verser : " + String.format("%.2f", salary) + " TND", normalFont));
-
-        document.add(new Paragraph("------------------------------------------------------------"));
-        document.add(new Paragraph("Présences :", subTitleFont));
-
-        List<Pointage> pointages = pointageRepository.findByUserAndDateBetween(user, startDate, endDate);
-        if (pointages.isEmpty()) {
-            document.add(new Paragraph("Aucun pointage disponible.", normalFont));
-        } else {
-            for (Pointage pointage : pointages) {
-                document.add(new Paragraph(
-                        "Date : " + pointage.getDate() +
-                                " | Arrivée : " + pointage.getArrivalTime() +
-                                " | Départ : " + pointage.getDepartureTime(), normalFont
-                ));
+            if (!uploadsDir.mkdirs()) {
+                System.out.println("Failed to create directory: {}"+ uploadsDir.getAbsolutePath());
+                throw new IOException("Unable to create uploads directory");
             }
+            System.out.println("Created uploads directory: {}"+ uploadsDir.getAbsolutePath());
         }
 
-        document.add(new Paragraph("------------------------------------------------------------"));
-        document.add(new Paragraph("Congés :", subTitleFont));
+        String fileName = user.getId() + "_" + startDate.getMonthValue() + ".pdf";
+        String filePath = "Uploads" + File.separator + fileName;
+        File pdfFile = new File(filePath);
 
-        List<Holiday> holidays = holidayRepository.findByUserAndStartDateBetween(user, startDate, endDate);
-        if (holidays.isEmpty()) {
-            document.add(new Paragraph("Aucun congé pris ce mois.", normalFont));
-        } else {
-            for (Holiday holiday : holidays) {
-                document.add(new Paragraph(
-                        "Type : " + holiday.getType() +
-                                " | Durée : " + holiday.getDuration() + " jour(s)" +
-                                " | Statut : " + holiday.getStatus(), normalFont
-                ));
+        try (FileOutputStream fos = new FileOutputStream(pdfFile)) {
+            PdfWriter.getInstance(document, fos);
+            document.open();
+
+            // Define colors using java.awt.Color
+            Color primaryColor = new Color(0, 102, 204); // Blue
+            Color lightGray = new Color(240, 240, 240); // Light gray
+            Color redColor = new Color(255, 0, 0); // Red
+
+            // Define fonts
+            Font titleFont = new Font(Font.HELVETICA, 18, Font.BOLD, primaryColor);
+            Font subTitleFont = new Font(Font.HELVETICA, 14, Font.BOLD, primaryColor);
+            Font normalFont = new Font(Font.HELVETICA, 12);
+            Font boldFont = new Font(Font.HELVETICA, 12, Font.BOLD);
+            Font netSalaryFont = new Font(Font.HELVETICA, 12, Font.BOLD, redColor);
+
+            // Header
+            Paragraph header = new Paragraph();
+            header.setAlignment(Element.ALIGN_CENTER);
+            header.add(new Chunk("HUMAN IQ\n", titleFont));
+            header.add(new Chunk("Fiche de Paie\n\n", titleFont));
+            document.add(header);
+
+            // Employee information table
+            PdfPTable infoTable = new PdfPTable(2);
+            infoTable.setWidthPercentage(100);
+            infoTable.setSpacingBefore(10f);
+            infoTable.setSpacingAfter(10f);
+
+            PdfPCell infoHeader = new PdfPCell(new Phrase("Informations Employé", subTitleFont));
+            infoHeader.setBackgroundColor(primaryColor);
+            infoHeader.setColspan(2);
+            infoHeader.setPadding(8f);
+            infoTable.addCell(infoHeader);
+
+            addTableRow(infoTable, "Nom & Prénom :", user.getFullname(), boldFont, normalFont);
+            addTableRow(infoTable, "Mois concerné :",
+                    startDate.getMonth().getDisplayName(TextStyle.FULL, Locale.ENGLISH) + " " + startDate.getYear(),
+                    boldFont, normalFont);
+            addTableRow(infoTable, "Date de génération :",
+                    LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+                    boldFont, normalFont);
+            addTableRow(infoTable, "Poste :", contract.getEmployee().getPosition(), boldFont, normalFont);
+
+            document.add(infoTable);
+
+            // Salary information table
+            PdfPTable salaryTable = new PdfPTable(2);
+            salaryTable.setWidthPercentage(100);
+            salaryTable.setSpacingBefore(10f);
+            salaryTable.setSpacingAfter(10f);
+
+            PdfPCell salaryHeader = new PdfPCell(new Phrase("Informations Salariales", subTitleFont));
+            salaryHeader.setBackgroundColor(primaryColor);
+            salaryHeader.setColspan(2);
+            salaryHeader.setPadding(8f);
+            salaryTable.addCell(salaryHeader);
+
+            addTableRow(salaryTable, "Salaire de base :", String.format("%.2f TND", contract.getSalary()), boldFont, normalFont);
+            addTableRow(salaryTable, "Salaire net à verser :", String.format("%.2f TND", salary), boldFont, netSalaryFont);
+
+            document.add(salaryTable);
+
+            // Attendance table
+            PdfPTable attendanceTable = new PdfPTable(3);
+            attendanceTable.setWidthPercentage(100);
+            attendanceTable.setSpacingBefore(10f);
+            document.add(new Paragraph("Présences :", subTitleFont));
+
+            PdfPCell attendanceHeader = new PdfPCell(new Phrase("Date | Arrivée | Départ", subTitleFont));
+            attendanceHeader.setBackgroundColor(lightGray);
+            attendanceHeader.setColspan(3);
+            attendanceHeader.setPadding(8f);
+            attendanceTable.addCell(attendanceHeader);
+
+            List<Pointage> pointages = pointageRepository.findByUserAndDateBetween(user, startDate, endDate);
+            if (pointages.isEmpty()) {
+                PdfPCell cell = new PdfPCell(new Phrase("Aucun pointage disponible.", normalFont));
+                cell.setColspan(3);
+                cell.setPadding(5f);
+                cell.setBorder(Rectangle.BOTTOM);
+                cell.setBorderColor(lightGray);
+                attendanceTable.addCell(cell);
+            } else {
+                for (Pointage pointage : pointages) {
+                    attendanceTable.addCell(createCell(pointage.getDate().toString(), normalFont));
+                    attendanceTable.addCell(createCell(pointage.getArrivalTime().toString(), normalFont));
+                    attendanceTable.addCell(createCell(pointage.getDepartureTime().toString(), normalFont));
+                }
             }
-        }
+            document.add(attendanceTable);
 
-        document.close();
-        System.out.println("PDF generated successfully at: "+filePath);
+            // Holidays table
+            PdfPTable holidaysTable = new PdfPTable(3);
+            holidaysTable.setWidthPercentage(100);
+            holidaysTable.setSpacingBefore(10f);
+            document.add(new Paragraph("Congés :", subTitleFont));
+
+            PdfPCell holidaysHeader = new PdfPCell(new Phrase("Type | Durée (jours) | Statut", subTitleFont));
+            holidaysHeader.setBackgroundColor(lightGray);
+            holidaysHeader.setColspan(3);
+            holidaysHeader.setPadding(8f);
+            holidaysTable.addCell(holidaysHeader);
+
+            List<Holiday> holidays = holidayRepository.findByUserAndStartDateBetween(user, startDate, endDate);
+            if (holidays.isEmpty()) {
+                PdfPCell cell = new PdfPCell(new Phrase("Aucun congé pris ce mois.", normalFont));
+                cell.setColspan(3);
+                cell.setPadding(5f);
+                cell.setBorder(Rectangle.BOTTOM);
+                cell.setBorderColor(lightGray);
+                holidaysTable.addCell(cell);
+            } else {
+                for (Holiday holiday : holidays) {
+                    holidaysTable.addCell(createCell(holiday.getType().toString(), normalFont));
+                    holidaysTable.addCell(createCell(String.valueOf(holiday.getDuration()) + " jour(s)", normalFont));
+                    holidaysTable.addCell(createCell(holiday.getStatus().toString(), normalFont));
+                }
+            }
+            document.add(holidaysTable);
+
+            // Footer
+            Paragraph footer = new Paragraph();
+            footer.setAlignment(Element.ALIGN_CENTER);
+            footer.setSpacingBefore(20f);
+            footer.add(new Chunk("Human IQ - " + LocalDate.now().getYear() + "\n", new Font(Font.HELVETICA, 8, Font.ITALIC)));
+            footer.add(new Chunk("Ce document est généré automatiquement", new Font(Font.HELVETICA, 8)));
+            document.add(footer);
+
+            document.close();
+            if (pdfFile.exists() && pdfFile.canRead()) {
+                System.out.println("PDF generated successfully at: {}"+ pdfFile.getAbsolutePath());
+            } else {
+                System.out.println("PDF file created but not accessible at: {}"+ pdfFile.getAbsolutePath());
+                throw new IOException("PDF file not accessible: " + pdfFile.getAbsolutePath());
+            }
+        } catch (IOException | DocumentException e) {
+            System.out.println("Failed to generate PDF at {}: {}"+ filePath+ e.getMessage()+ e);
+            throw e;
+        }
     }
-    // Envoyer l'email avec la pièce jointe
+
+    // Utility methods for PDF construction
+    private void addTableRow(PdfPTable table, String label, String value, Font labelFont, Font valueFont) {
+        table.addCell(createCell(label, labelFont));
+        table.addCell(createCell(value, valueFont));
+    }
+
+    private PdfPCell createCell(String text, Font font) {
+        PdfPCell cell = new PdfPCell(new Phrase(text, font));
+        cell.setPadding(5f);
+        cell.setBorder(Rectangle.BOTTOM);
+        cell.setBorderColor(Color.LIGHT_GRAY);
+        return cell;
+    }
+
     private void sendEmailWithAttachment(String to, FileSystemResource file) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
@@ -211,4 +328,3 @@ public class AutoService {
         mailSender.send(message);
     }
 }
-

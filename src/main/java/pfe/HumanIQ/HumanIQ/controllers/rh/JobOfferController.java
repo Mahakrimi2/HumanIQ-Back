@@ -2,7 +2,7 @@ package pfe.HumanIQ.HumanIQ.controllers.rh;
 
 import org.springframework.web.bind.annotation.*;
 import pfe.HumanIQ.HumanIQ.models.JobOffer;
-import pfe.HumanIQ.HumanIQ.services.JobOfferService;
+import pfe.HumanIQ.HumanIQ.services.JobOffer_CV.JobOfferService;
 
 import java.util.List;
 

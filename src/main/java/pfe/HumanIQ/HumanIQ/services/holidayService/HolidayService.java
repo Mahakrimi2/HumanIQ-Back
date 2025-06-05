@@ -6,13 +6,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import pfe.HumanIQ.HumanIQ.emailConfig.EmailDetails;
 import pfe.HumanIQ.HumanIQ.emailConfig.EmailService;
-import pfe.HumanIQ.HumanIQ.models.Contract;
 import pfe.HumanIQ.HumanIQ.models.Holiday;
 import pfe.HumanIQ.HumanIQ.models.HolidayStatus;
 import pfe.HumanIQ.HumanIQ.models.User;
 import pfe.HumanIQ.HumanIQ.repositories.HolidayRepository;
 import pfe.HumanIQ.HumanIQ.repositories.UserRepo;
-import pfe.HumanIQ.HumanIQ.services.NotificationService;
+import pfe.HumanIQ.HumanIQ.services.Notifications.NotificationService;
 
 import java.io.IOException;
 import java.nio.file.Files;

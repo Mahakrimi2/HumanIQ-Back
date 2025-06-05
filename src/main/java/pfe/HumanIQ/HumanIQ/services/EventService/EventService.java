@@ -1,4 +1,4 @@
-package pfe.HumanIQ.HumanIQ.services;
+package pfe.HumanIQ.HumanIQ.services.EventService;
 
 import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
@@ -7,6 +7,7 @@ import pfe.HumanIQ.HumanIQ.models.User;
 import pfe.HumanIQ.HumanIQ.repositories.EventRepository;
 import pfe.HumanIQ.HumanIQ.repositories.NotificationRepository;
 import pfe.HumanIQ.HumanIQ.repositories.UserRepo;
+import pfe.HumanIQ.HumanIQ.services.Notifications.NotificationService;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -3,12 +3,11 @@ package pfe.HumanIQ.HumanIQ.controllers.commun;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pfe.HumanIQ.HumanIQ.models.HolidayType;
 import pfe.HumanIQ.HumanIQ.models.Pointage;
 import pfe.HumanIQ.HumanIQ.models.PointageStatus;
 import pfe.HumanIQ.HumanIQ.repositories.PointageRepo;
 import pfe.HumanIQ.HumanIQ.repositories.UserRepo;
-import pfe.HumanIQ.HumanIQ.services.PointageService;
+import pfe.HumanIQ.HumanIQ.services.Pointages.PointageService;
 
 import java.time.Duration;
 import java.time.LocalDate;

@@ -1,4 +1,4 @@
-package pfe.HumanIQ.HumanIQ.services;
+package pfe.HumanIQ.HumanIQ.services.JobOffer_CV;
 
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -6,7 +6,6 @@ import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import pfe.HumanIQ.HumanIQ.models.CV;
-import pfe.HumanIQ.HumanIQ.models.JobOffer;
 import pfe.HumanIQ.HumanIQ.repositories.CVRepo;
 import pfe.HumanIQ.HumanIQ.repositories.JobOfferRepository;
 
@@ -17,7 +16,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class CVService {

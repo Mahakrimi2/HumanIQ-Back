@@ -1,4 +1,4 @@
-package pfe.HumanIQ.HumanIQ.services;
+package pfe.HumanIQ.HumanIQ.services.JobOffer_CV;
 
 import org.springframework.stereotype.Service;
 import pfe.HumanIQ.HumanIQ.models.JobOffer;
